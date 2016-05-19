@@ -31,18 +31,15 @@ CSVDataReader::~CSVDataReader() {
 }
 string** CSVDataReader::read_data(){
 	FileFunctions* fileFunctions = new FileFunctions();
-	fileFunctions->getFileName();
-	while ((fileFunctions->getPath() == "" && fileFunctions->getFileName() == "") || fileFunctions->getActionCanceled() == true) {
-		if (fileFunctions->getActionCanceled() == true) {
-			//Action was cnaceled by user
-		}
-		else {
-			sPath = fileFunctions->getPath();
-			sFileName = fileFunctions->getFileName();
-			sPathandfFileName = sPath + "\\" + sFileName;
-		}
+	fileFunctions->getPathandFileName();
+	/*while (fileFunctions->getPath() == "" && fileFunctions->getFileName() == "" && fileFunctions->getActionCanceled() == false) {
+		
+	}*/
+	if (fileFunctions->getActionCanceled() == false){
+		sPath = fileFunctions->getPath();
+		sFileName = fileFunctions->getFileName();
+		sPathandfFileName = sPath + "\\" + sFileName;
 	}
-	cout << sFileName;
 	return ppDataArray;
 }
 

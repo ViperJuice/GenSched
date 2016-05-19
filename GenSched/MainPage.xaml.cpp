@@ -40,4 +40,5 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 	dataReaderFactory = new CsvDataReaderFactory;
 	dataReader = dataReaderFactory->create_dataReader();
 	dataReader->read_data();
+	cout << "?";
 }
