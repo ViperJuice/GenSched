@@ -12,15 +12,16 @@ using namespace std;
 
 class FileFunctions {
 	public:
-		static string getPath() {
-
-			return sPath;
-		}
-		static string getFileName();
+		FileFunctions();
+		~FileFunctions();
+		string getPath();
+		string getFileName();
+		bool getActionCanceled();
+		void getPathandFileName();
 	private:
-		static string sPath;
-		static string sFileName;
-		static bool bActionsCanceled;
+		string sPath;
+		string sFileName;
+		bool bActionCanceled;
 };
 
 

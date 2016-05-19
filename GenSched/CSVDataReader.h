@@ -9,6 +9,7 @@
 #define CSVDATAREADER_H_
 
 #include "DataReader.h"
+#include "FileFunctions.h"
 
 using namespace std;
 
@@ -19,8 +20,10 @@ public:
 	string** read_data();
 private:
 	string** ppDataArray;
+	FileFunctions* fileFunctions;
 	string sPath;
 	string sFileName;
+	string sPathandfFileName;
 };
 
 #endif /* CSVDATAREADER_H_ */

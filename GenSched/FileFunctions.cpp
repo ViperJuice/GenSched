@@ -17,10 +17,18 @@ using namespace Windows::Storage::Pickers;
 using namespace concurrency;
 using namespace Windows::Devices::Enumeration;
 
-	string FileFunctions::sPath = "";
-	string FileFunctions::sFileName = "";
-	bool FileFunctions::bActionsCanceled = false;
-	string FileFunctions::getFileName() {
+
+
+FileFunctions::FileFunctions():sPath(""), sFileName(""), bActionCanceled(false)
+{
+
+}
+
+FileFunctions::~FileFunctions()
+{
+
+}
+	void FileFunctions::getPathandFileName() {
 
 		FileOpenPicker^ picker = ref new FileOpenPicker();
 		picker->FileTypeFilter->Append(".csv");
@@ -33,7 +41,7 @@ using namespace Windows::Devices::Enumeration;
 			str = string(wsFileName.begin(), wsFileName.end());
 			sFileName = str;
 		})
-		.then([](task<void> t)
+		.then([&](task<void> t)
 		{
 
 			try
@@ -42,7 +50,7 @@ using namespace Windows::Devices::Enumeration;
 			}
 			catch (concurrency::task_canceled e)
 			{
-
+				bActionCanceled = true;
 			}
 			catch (Platform::COMException^ e)
 			{
@@ -51,5 +59,17 @@ using namespace Windows::Devices::Enumeration;
 			}
 
 		});
-		return sPath + "\\" + sFileName;
+	}
+
+	string FileFunctions::getFileName() {
+		return sFileName;
+	}
+
+	bool FileFunctions::getActionCanceled()
+	{
+		return bActionCanceled;
+	}
+
+	string FileFunctions::getPath() {
+		return sPath;
 	}

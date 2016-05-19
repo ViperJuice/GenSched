@@ -6,6 +6,7 @@
  */
 
 #include "CSVDataReader.h"
+#include "FileFunctions.h"
 #include "pch.h"
 #include <string>
 #include <iostream>
@@ -29,8 +30,18 @@ CSVDataReader::~CSVDataReader() {
 	// TODO Auto-generated destructor stub
 }
 string** CSVDataReader::read_data(){
-
-	sFileName = FileFunctions::getFileName();
+	FileFunctions* fileFunctions = new FileFunctions();
+	fileFunctions->getFileName();
+	while ((fileFunctions->getPath() == "" && fileFunctions->getFileName() == "") || fileFunctions->getActionCanceled() == true) {
+		if (fileFunctions->getActionCanceled() == true) {
+			//Action was cnaceled by user
+		}
+		else {
+			sPath = fileFunctions->getPath();
+			sFileName = fileFunctions->getFileName();
+			sPathandfFileName = sPath + "\\" + sFileName;
+		}
+	}
 	cout << sFileName;
 	return ppDataArray;
 }
