@@ -1,0 +1,17 @@
+﻿<Page
+    x:Class="GenSched.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GenSched"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:ConnectionId='1' x:Name="grid_Main" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel HorizontalAlignment="Left" Height="630" VerticalAlignment="Top" Width="360">
+            <TextBlock x:ConnectionId='2' x:Name="textBlock" TextWrapping="Wrap" Text="GenSched"/>
+            <Button x:ConnectionId='3' x:Name="button_ImportData" Content="Import Data" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                     />
+        </StackPanel>
+    </Grid>
+</Page>
+
