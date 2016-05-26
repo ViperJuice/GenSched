@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include <thread>
 
 using namespace Windows::Storage;
 using namespace std;
@@ -28,48 +29,50 @@ FileFunctions::~FileFunctions()
 {
 
 }
-	void FileFunctions::getPathandFileName() {
 
-		FileOpenPicker^ picker = ref new FileOpenPicker();
-		picker->FileTypeFilter->Append(".csv");
-		auto fileTask = create_task(picker->PickSingleFileAsync());
-		fileTask.then([&](StorageFile^ file) {
-			wstring wsPath(file->Path->Data());
-			wstring wsFileName(file->Name->Data());
-			string str(wsPath.begin(), wsPath.end());
-			sPath = str;
-			str = string(wsFileName.begin(), wsFileName.end());
-			sFileName = str;
-		})
-		.then([&](task<void> t)
-		{
+void FileFunctions::fileSelectionRetriever() {
+	Platform::String^ fileSelectionResult = create_task(fileSelectionComplete).get();
+}
+void FileFunctions::setPathAndFileName() {
+	thread t1(&FileFunctions::fileSelectionRetriever, this);
+	t1.join();
+}
 
-			try
-			{
-				t.wait();
-			}
-			catch (concurrency::task_canceled e)
-			{
-				bActionCanceled = true;
-			}
-			catch (Platform::COMException^ e)
-			{
-				//Example output: The system cannot find the specified file.
-				OutputDebugString(e->Message->Data());
-			}
-
-		});
-	}
-
-	string FileFunctions::getFileName() {
-		return sFileName;
-	}
-
-	bool FileFunctions::getActionCanceled()
+void FileFunctions::pathAndFileNamePicker() {
+	FileOpenPicker^ picker = ref new FileOpenPicker();
+	picker->FileTypeFilter->Append(".csv");
+	auto fileTask = create_task(picker->PickSingleFileAsync());
+	fileTask.then([this](StorageFile^ file) {
+		wstring wsPath(file->Path->Data());
+		wstring wsFileName(file->Name->Data());
+		string str(wsPath.begin(), wsPath.end());
+		sPath = str;
+		str = string(wsFileName.begin(), wsFileName.end());
+		sFileName = str;
+	})
+	.then([this](task<Platform::String^> t)
 	{
-		return bActionCanceled;
-	}
+		/*try
+		{
+			fileSelectionComplete.set(t.get());
+		}
+		catch (Platform::Exception^ exception)
+		{
+			fileSelectionComplete.set_exception(exception);
+		}*/
+	});
+}
 
-	string FileFunctions::getPath() {
-		return sPath;
-	}
+
+string FileFunctions::getFileName() {
+	return sFileName;
+}
+
+bool FileFunctions::getActionCanceled()
+{
+	return bActionCanceled;
+}
+
+string FileFunctions::getPath() {
+	return sPath;
+}

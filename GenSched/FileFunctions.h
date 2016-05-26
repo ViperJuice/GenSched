@@ -17,11 +17,15 @@ class FileFunctions {
 		string getPath();
 		string getFileName();
 		bool getActionCanceled();
-		void getPathandFileName();
+		void setPathAndFileName();
+		
 	private:
 		string sPath;
 		string sFileName;
 		bool bActionCanceled;
+		concurrency::task_completion_event<Platform::String^> fileSelectionComplete;
+		void pathAndFileNamePicker();
+		void fileSelectionRetriever();
 };
 
 

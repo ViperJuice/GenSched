@@ -31,10 +31,8 @@ CSVDataReader::~CSVDataReader() {
 }
 string** CSVDataReader::read_data(){
 	FileFunctions* fileFunctions = new FileFunctions();
-	fileFunctions->getPathandFileName();
-	/*while (fileFunctions->getPath() == "" && fileFunctions->getFileName() == "" && fileFunctions->getActionCanceled() == false) {
-		
-	}*/
+	fileFunctions->setPathAndFileName();
+
 	if (fileFunctions->getActionCanceled() == false){
 		sPath = fileFunctions->getPath();
 		sFileName = fileFunctions->getFileName();
