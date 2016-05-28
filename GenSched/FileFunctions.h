@@ -16,8 +16,8 @@ class FileFunctions {
 		~FileFunctions();
 		string getPath();
 		string getFileName();
+		string** getCSVData();
 		bool getActionCanceled();
-		void setPathAndFileName();
 		
 	private:
 		string sPath;
@@ -25,7 +25,6 @@ class FileFunctions {
 		bool bActionCanceled;
 		concurrency::task_completion_event<Platform::String^> fileSelectionComplete;
 		void pathAndFileNamePicker();
-		void fileSelectionRetriever();
 };
 
 

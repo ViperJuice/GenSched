@@ -21,6 +21,7 @@ namespace GenSched
 	private:
 		DataReaderFactory* dataReaderFactory;
 		DataReader* dataReader;
+		string** strInputDataArray;
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }
