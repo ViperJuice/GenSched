@@ -8,11 +8,13 @@
 #include <collection.h>
 #include <ppltasks.h>
 #include <iostream>
-
+#include <string>
+#include "AvailabilityData.h"
 #include "App.xaml.h"
 #include "DataReader.h"
 #include "CSVDataReader.h"
 #include "FileFunctions.h"
 #include "DataReaderFactory.h"
 #include "DataReader.h"
+
 

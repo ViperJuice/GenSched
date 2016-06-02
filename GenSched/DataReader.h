@@ -14,10 +14,10 @@ using namespace std;
 class DataReader {
 public:
 	virtual ~DataReader()=0;
-	virtual string** read_data()=0;
+	virtual AvailabilityData read_data(Windows::Storage::Streams::IRandomAccessStream^ stream)=0;
 
 private:
-	string** sDataArray;
+	AvailabilityData availabilityData;
 };
 
 

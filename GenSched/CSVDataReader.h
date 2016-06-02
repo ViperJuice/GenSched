@@ -17,9 +17,9 @@ class CSVDataReader: public DataReader {
 public:
 	CSVDataReader();
 	~CSVDataReader();
-	string** read_data();
+	AvailabilityData read_data(Windows::Storage::Streams::IRandomAccessStream^ stream);
 private:
-	string** ppDataArray;
+	AvailabilityData availabilityData;
 	FileFunctions* fileFunctions;
 	string sPath;
 	string sFileName;

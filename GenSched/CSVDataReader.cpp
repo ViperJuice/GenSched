@@ -21,7 +21,7 @@ using namespace Windows::Storage::Pickers;
 using namespace concurrency;
 using namespace Windows::Devices::Enumeration;
 
-CSVDataReader::CSVDataReader():ppDataArray(nullptr), sPath(""), sFileName("") {
+CSVDataReader::CSVDataReader():sPath(""), sFileName("") {
 	// TODO Auto-generated constructor stub
 
 }
@@ -29,13 +29,10 @@ CSVDataReader::CSVDataReader():ppDataArray(nullptr), sPath(""), sFileName("") {
 CSVDataReader::~CSVDataReader() {
 	// TODO Auto-generated destructor stub
 }
-string** CSVDataReader::read_data(){
+AvailabilityData CSVDataReader::read_data(Windows::Storage::Streams::IRandomAccessStream^ stream){
 	FileFunctions* fileFunctions = new FileFunctions();
-
-	if (fileFunctions->getActionCanceled() == false){
-		ppDataArray = fileFunctions->getCSVData();
-	}
-	return ppDataArray;
+	availabilityData = fileFunctions->getCSVData(stream);
+	return availabilityData;
 }
 
  

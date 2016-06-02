@@ -14,17 +14,24 @@ class FileFunctions {
 	public:
 		FileFunctions();
 		~FileFunctions();
-		string getPath();
-		string getFileName();
-		string** getCSVData();
-		bool getActionCanceled();
-		
+		AvailabilityData getCSVData(Windows::Storage::Streams::IRandomAccessStream^ stream);
+		Platform::String^ strInputData;
+		template<typename T>
+		T** vectorParser2D(std::vector<std::vector<T>> vectorToParse, unsigned __int32 firstColumn,
+			unsigned __int32 lastColumn, unsigned __int32 firstRow, unsigned __int32 lastRow);
 	private:
 		string sPath;
 		string sFileName;
 		bool bActionCanceled;
+		AvailabilityData availabilityData;
+		vector<vector<Platform::String^>> str2DVectorInputData;
+		Windows::Storage::Streams::DataReader^ dataReader;
+		Windows::Storage::Streams::IRandomAccessStream^ stream;
 		concurrency::task_completion_event<Platform::String^> fileSelectionComplete;
-		void pathAndFileNamePicker();
+		void parseInputString();
+		void buildAvailabilityData();
+
+
 };
 
 

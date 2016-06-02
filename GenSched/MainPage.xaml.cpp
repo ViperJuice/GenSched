@@ -9,14 +9,13 @@
 using namespace GenSched;
 using namespace std;
 using namespace Platform;
+using namespace concurrency;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Pickers;
-using namespace Windows::Storage::Streams;
-using namespace concurrency;
+//using namespace Windows::Storage::Streams;
 using namespace Windows::Devices::Enumeration;
-using namespace concurrency;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
@@ -36,39 +35,47 @@ MainPage::MainPage()
 
 void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+	auto reader = std::make_shared<Windows::Storage::Streams::DataReader^>(nullptr);
 	FileOpenPicker^ picker = ref new FileOpenPicker();
-
 	picker->FileTypeFilter->Append(".csv");
 	auto fileTask = create_task(picker->PickSingleFileAsync());
-	fileTask.then([this](StorageFile^ file) {
-		return create_task(file->OpenSequentialReadAsync());
+	fileTask.then([this](StorageFile^ file)
+	{
+		if (file)
+		{
+			return file->OpenAsync(FileAccessMode::Read);
+		}
+		else
+		{
+			throw task_canceled();
+		}
 	})
-	.then(
-		[this](IInputStream^ stm){
-		Windows::Storage::Streams::DataReader^ reader = ref new Windows::Storage::Streams::DataReader(stm);
-		reader->UnicodeEncoding = UnicodeEncoding::Utf8;
-		reader->ByteOrder = ByteOrder::LittleEndian;
+	.then([this](Windows::Storage::Streams::IRandomAccessStream^ stream)
+	{
+		try 
+		{
+			DataReaderFactory* dataReaderFactory = new CsvDataReaderFactory();
+			DataReader* dataReader = dataReaderFactory->create_dataReader();
+			return availabilityData = dataReader->read_data(stream);
+		}
+		catch (Platform::Exception^ e)
+		{
+			cout << e->Message->Data();
+			return availabilityData;
+		}
+	})
+	/*.then([this](Windows::Storage::Streams::IRandomAccessStream^ stream)
+	{
+		this->reader = ref new  Windows::Storage::Streams::DataReader(stream->GetInputStreamAt(0));
+		return this->reader->LoadAsync(stream->Size);
+	})
+	.then([this](unsigned int bytes)
+	{
+		strInputData = this->reader->ReadString(bytes);
+		cout << strInputData->Data();
+	})*/
+	.then([](AvailabilityData ad)
+	{
+		cout << ad.month.data();
 	});
-
-
-	//task<string**> openDataFile = create_task(
-	//		[this]() ->string**
-	//		{
-	//			dataReaderFactory = new CsvDataReaderFactory;
-	//			dataReader = dataReaderFactory->create_dataReader();
-	//			return dataReader->read_data();
-	//		});	
-	//openDataFile.then([this](task<string**> T) {
-	//	try{
-	//		return T;
-	//	}
-	//	catch(const std::exception& e)
-	//	{
-	//		cout << "what?";
-	//		return T;
-	//	}
-	//})
-	//	.then([this](string** strInputDataArray) {
-	//	this->strInputDataArray = strInputDataArray;
-	//});
 }

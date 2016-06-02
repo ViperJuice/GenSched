@@ -19,9 +19,9 @@ namespace GenSched
 		MainPage();
 
 	private:
-		DataReaderFactory* dataReaderFactory;
-		DataReader* dataReader;
-		string** strInputDataArray;
+		Platform::String^ strInputData;
+		AvailabilityData availabilityData;
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		Windows::Storage::Streams::DataReader^ reader;
 	};
 }
