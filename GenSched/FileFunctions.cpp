@@ -67,8 +67,6 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 
 void FileFunctions::parseInputString()
 {
-	//create vector to store availability data
-	vector<vector<String^>> str2DVectorInputData;
 	//Get iterator to string if .csv data
 	const char16* ptrInputData = strInputData->Begin();
 	//i=column index, j = row index
@@ -121,38 +119,36 @@ void FileFunctions::buildAvailabilityData()
 {	
 	availabilityData.month = str2DVectorInputData[0][0]->Data();
 	availabilityData.year = int (str2DVectorInputData[0][1]->Data());
-	int IDColumn;
-	int FirstDayColumn;
-	int LastDayColumn;
-	int FirstDayOfMonthColumn;
-	int LastDayOfMonthColumn;
-	int FirstPairRequestColumn;
-	int LastPairRequestColumn;
-	int FirstDataRow;
-	int LastDataRow;
-	int FirstQualColumn;
-	int LastQualColumn;
-	int FirstPreferenceColumn;
-	int LastPreferenceColumn;
-	int SavedDateColumn;
-
+	unsigned int IDColumn;
+	unsigned int FirstDayColumn;
+	unsigned int LastDayColumn;
+	unsigned int FirstDayOfMonthColumn;
+	unsigned int LastDayOfMonthColumn;
+	unsigned int FirstPairRequestColumn;
+	unsigned int LastPairRequestColumn;
+	unsigned int FirstDataRow;
+	unsigned int LastDataRow;
+	unsigned int FirstQualColumn;
+	unsigned int LastQualColumn;
+	unsigned int FirstPreferenceColumn;
+	unsigned int LastPreferenceColumn;
+	unsigned int SavedDateColumn;
 	for (int i = 0;i < str2DVectorInputData[0].size();i++)
 	{	//Capture Column and Row Index Data
-		if (str2DVectorInputData[0][i] == "IDColumn"){IDColumn = i;}
-		if (str2DVectorInputData[0][i] == "FirstDayColumn"){FirstDayColumn = i;}
-		if (str2DVectorInputData[0][i] == "LastDayColumn"){LastDayColumn = i;}
-		if (str2DVectorInputData[0][i] == "FirstDayOfMonthColumn"){FirstDayOfMonthColumn = i;}
-		if (str2DVectorInputData[0][i] == "LastDayOfMonthColumn"){LastDayOfMonthColumn = i;}
-		if (str2DVectorInputData[0][i] == "FirstPairRequestColumn"){FirstPairRequestColumn = i;}
-		if (str2DVectorInputData[0][i] == "LastPairRequestColumn"){LastPairRequestColumn = i;}
-		if (str2DVectorInputData[0][i] == "FirstQualColumn") { FirstQualColumn = i; }
-		if (str2DVectorInputData[0][i] == "LastQualColumn") { LastQualColumn = i; }
-		if (str2DVectorInputData[0][i] == "FirstPreferenceColumn") { FirstPreferenceColumn = i; }
-		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") { LastPreferenceColumn = i; }
-		if (str2DVectorInputData[0][i] == "FirstDataRow"){FirstDataRow = i;}
-		if (str2DVectorInputData[0][i] == "LastDataRow"){LastDataRow = i;}
-
-		if (str2DVectorInputData[0][i] == "SavedDateColumn"){SavedDateColumn = i;}	
+		if (str2DVectorInputData[0][i] == "IDColumn"){IDColumn = int (str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstDayColumn"){FirstDayColumn = int (str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastDayColumn"){LastDayColumn = int (str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstDayOfMonthColumn") { FirstDayOfMonthColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastDayOfMonthColumn") { LastDayOfMonthColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstPairRequestColumn"){FirstPairRequestColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastPairRequestColumn"){LastPairRequestColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstQualColumn") { FirstQualColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastQualColumn") { LastQualColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstPreferenceColumn") { FirstPreferenceColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") { LastPreferenceColumn = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstDataRow"){FirstDataRow = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastDataRow"){LastDataRow = int(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "SavedDateColumn"){SavedDateColumn = int(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "Des-Num-Days_Score") 
 		{	//Map Scoring Data to Key Map and then Key to Score
 			size_t key = availabilityData.mapNumberScorableType.size();
