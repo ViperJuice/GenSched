@@ -269,11 +269,12 @@ void FileFunctions::buildAvailabilityData()
 		}		
 	}
 
-	const size_t numberOfDayColumns = LastDayOfMonthColumn - FirstDayColumn;
-	const size_t numberOfWingmanColumns = LastPairRequestColumn - FirstPairRequestColumn;
+	const size_t numberOfDayColumns = (LastDayOfMonthColumn - FirstDayColumn) + 1;
+	const size_t numberOfWingmanColumns = (LastPairRequestColumn - FirstPairRequestColumn) + 1;
 	const size_t numberOfIDColumns = 1;
-	const size_t numberOfQualColumns = LastQualColumn - FirstQualColumn;
-	const size_t numberOfDataRows = LastDataRow - FirstDataRow;
+	const size_t numberOfQualColumns = (LastQualColumn - FirstQualColumn) + 1;
+	const size_t numberOfPrefColumns = (LastPreferenceColumn - FirstPreferenceColumn) + 1;
+	const size_t numberOfDataRows = (LastDataRow - FirstDataRow) + 1;
 
 	std::wstring** wstrIntDateDayDayTypeArray = nullptr;
 	std::wstring** wstrAvailabilityTypeArray = nullptr;
@@ -283,10 +284,10 @@ void FileFunctions::buildAvailabilityData()
 
 	//convert Platform::String Array to std::wstring Array
 	std::vector <std::vector<std::wstring>> ws2DVectorInputData;
-	for (int i = 0; i < str2DVectorInputData.size();i++) 
+	for (int i = 0;i < str2DVectorInputData.size();i++) 
 	{ 
 		std::vector<std::wstring> wstrVct;
-		for (int j = 0 ;j < str2DVectorInputData[i].size(); j++)
+		for (int j = 0;j < str2DVectorInputData[i].size();j++)
 		{
 			wstrVct.push_back(str2DVectorInputData[i][j]->Data());
 		}
@@ -305,6 +306,36 @@ void FileFunctions::buildAvailabilityData()
 	int** ppIntWingmanPrefArray;
 	int** ppIntQualArray;
 	int** ppPrefArray;
+
+	ppIntDateDayDayTypeArray = new int*[3];
+	for (int i = 0;i < 3;i++)
+	{
+		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
+	}
+
+	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
+	for (int i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
+	}
+
+	ppIntWingmanPrefArray = new int*[numberOfDataRows];
+	for (int i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
+	}
+
+	ppIntQualArray = new int*[numberOfDataRows];
+	for (int i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntQualArray[i] = new int[numberOfQualColumns];
+	}
+
+	ppPrefArray = new int*[numberOfDataRows];
+	for (int i = 0;i < numberOfDataRows;i++)
+	{
+		ppPrefArray[i] = new int[numberOfPrefColumns];
+	}
 
 	std::map<int, std::string> mapNumberName;
 	std::map<int, std::string> mapNumberQualType;
