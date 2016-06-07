@@ -3,11 +3,11 @@
 //Struct to contain availability data
 struct AvailabilityData
 {
-	std::map<int, std::wstring> mapNumberName;
-	std::map<int, std::wstring> mapNumberScorableType;
-	std::map<int, std::wstring> mapNumberQualType;
-	std::map<int, int> mapScorableNumToScore;
-	std::map<int, int> mapNameNumToBucket;
+	std::map<unsigned int, std::wstring> mapNumberName;
+	std::map<unsigned int, std::wstring> mapNumberScorableType;
+	std::map<unsigned int, std::wstring> mapNumberQualType;
+	std::map<unsigned int, unsigned int> mapScorableNumToScore;
+	std::map<unsigned int, unsigned int> mapNameNumToBucket;
 
 	enum weekdays { Sun, Mon, Tue, Wed, Thu, Fri, Sat };
 	enum dayTypes { F, W, G };

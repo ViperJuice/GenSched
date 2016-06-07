@@ -142,6 +142,13 @@ void FileFunctions::buildAvailabilityData()
 	unsigned int LastPairRequestColumn;
 	unsigned int FirstDataRow;
 	unsigned int LastDataRow;
+
+	unsigned int DayOfMonthRow;
+	unsigned int WeekDayRow;
+	unsigned int DayTypeRow;
+	unsigned int PrefRow;
+	unsigned int QualRow;
+
 	unsigned int FirstQualColumn;
 	unsigned int LastQualColumn;
 	unsigned int FirstPreferenceColumn;
@@ -162,6 +169,11 @@ void FileFunctions::buildAvailabilityData()
 		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") { LastPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstDataRow"){FirstDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastDataRow"){LastDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "DayOfMonthRow") {DayOfMonthRow = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "WeekDayRow") {WeekDayRow = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "DayTypeRow") {DayTypeRow = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "PrefRow") {PrefRow = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "QualRow") {QualRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "SavedDateColumn"){SavedDateColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "Des-Num-Days_Score") 
 		{	//Map Scoring Data to Key Map and then Key to Score
@@ -308,40 +320,46 @@ void FileFunctions::buildAvailabilityData()
 	int** ppPrefArray;
 
 	ppIntDateDayDayTypeArray = new int*[3];
-	for (int i = 0;i < 3;i++)
+	for (unsigned int i = 0;i < 3;i++)
 	{
 		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
 	}
 
 	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
-	for (int i = 0;i < numberOfDataRows;i++)
+	for (unsigned int i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
 	}
 
 	ppIntWingmanPrefArray = new int*[numberOfDataRows];
-	for (int i = 0;i < numberOfDataRows;i++)
+	for (unsigned int i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
 	}
 
 	ppIntQualArray = new int*[numberOfDataRows];
-	for (int i = 0;i < numberOfDataRows;i++)
+	for (unsigned int i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntQualArray[i] = new int[numberOfQualColumns];
 	}
 
 	ppPrefArray = new int*[numberOfDataRows];
-	for (int i = 0;i < numberOfDataRows;i++)
+	for (unsigned int i = 0;i < numberOfDataRows;i++)
 	{
 		ppPrefArray[i] = new int[numberOfPrefColumns];
 	}
 
-	std::map<int, std::string> mapNumberName;
-	std::map<int, std::string> mapNumberQualType;
 	std::map<int, int> mapNameNumToBucket;
+	for(unsigned int i = FirstDataRow - 1;i < LastDataRow - 1;i++)
+	{
+		availabilityData.mapNumberName.insert(std::pair<unsigned int, wstring>(i - FirstDataRow, ws2DVectorInputData[i][IDColumn]));
+	}
 
-
+	for (unsigned int i = FirstQualColumn - 1; i < LastQualColumn - 1;i++)
+	{
+		availabilityData.mapNumberQualType.insert(std::pair<unsigned int, wstring>(i - FirstQualColumn, ws2DVectorInputData[QualRow][i]));
+	}
+	 
 
 }
 //Template to cut out a section of 2D vector and return it as a 2D Array
