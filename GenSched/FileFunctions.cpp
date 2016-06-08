@@ -39,7 +39,7 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 		this->dataReader = ref new  Windows::Storage::Streams::DataReader(stream->GetInputStreamAt(0));
 		return this->dataReader->LoadAsync(stream->Size);
 	})
-	.then([this](unsigned int bytes)
+	.then([this](size_t bytes)
 	{
 		strInputData = this->dataReader->ReadString(bytes);
 		cout << strInputData->Data();
@@ -65,12 +65,13 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 	return availabilityData;
 }
 
+
 void FileFunctions::parseInputString()
 {
 	//Get iterator to string if .csv data
 	const char16* ptrInputData = strInputData->Begin();
 	//i=column index, j = row index
-	unsigned int i = 0, j = 0;
+	size_t i = 0, j = 0;
 	//vector to hold row of availability matrix
 	vector<String^> strVct;
 	//while not end of input string
@@ -133,41 +134,40 @@ void FileFunctions::buildAvailabilityData()
 {	
 	availabilityData.month = str2DVectorInputData[0][0]->Data();
 	availabilityData.year = int (str2DVectorInputData[0][1]->Data());
-	unsigned int IDColumn;
-	unsigned int FirstDayColumn;
-	unsigned int LastDayColumn;
-	unsigned int FirstDayOfMonthColumn;
-	unsigned int LastDayOfMonthColumn;
-	unsigned int FirstPairRequestColumn;
-	unsigned int LastPairRequestColumn;
-	unsigned int FirstDataRow;
-	unsigned int LastDataRow;
-	unsigned int DayOfMonthRow;
-	unsigned int WeekDayRow;
-	unsigned int DayTypeRow;
-	unsigned int PrefRow;
-	unsigned int QualRow;
-	unsigned int FirstQualColumn;
-	unsigned int LastQualColumn;
-	unsigned int BucketColumn;
-	unsigned int FirstPreferenceColumn;
-	unsigned int LastPreferenceColumn;
-	unsigned int SavedDateColumn;
-
+	size_t IDColumn;
+	size_t FirstDayColumn;
+	size_t LastDayColumn;
+	size_t FirstDayOfMonthColumn;
+	size_t LastDayOfMonthColumn;
+	size_t FirstPairRequestColumn;
+	size_t LastPairRequestColumn;
+	size_t BucketColumn;
+	size_t FirstDataRow;
+	size_t LastDataRow;
+	size_t DayOfMonthRow;
+	size_t WeekDayRow;
+	size_t DayTypeRow;
+	size_t PrefRow;
+	size_t QualRow;
+	size_t FirstQualColumn;
+	size_t LastQualColumn;
+	size_t FirstPreferenceColumn;
+	size_t LastPreferenceColumn;
+	size_t SavedDateColumn;
 	for (int i = 0;i < str2DVectorInputData[0].size();i++)
 	{	//Capture Column and Row Index Data
 		if (str2DVectorInputData[0][i] == "IDColumn"){IDColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstDayColumn"){FirstDayColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastDayColumn"){LastDayColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "FirstDayOfMonthColumn") { FirstDayOfMonthColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "LastDayOfMonthColumn") { LastDayOfMonthColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstDayOfMonthColumn") {FirstDayOfMonthColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastDayOfMonthColumn") {LastDayOfMonthColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstPairRequestColumn"){FirstPairRequestColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastPairRequestColumn"){LastPairRequestColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "BucketColumn") {BucketColumn = _wtoi(str2DVectorInputData[1][i]->Data()); }
 		if (str2DVectorInputData[0][i] == "FirstQualColumn") {FirstQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastQualColumn") {LastQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstPreferenceColumn") {FirstPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") {LastPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "BucketColumn") {BucketColumn = _wtoi(str2DVectorInputData[1][i]->Data()); }
 		if (str2DVectorInputData[0][i] == "FirstDataRow"){FirstDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastDataRow"){LastDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "DayOfMonthRow") {DayOfMonthRow = _wtoi(str2DVectorInputData[1][i]->Data());}
@@ -176,110 +176,14 @@ void FileFunctions::buildAvailabilityData()
 		if (str2DVectorInputData[0][i] == "PrefRow") {PrefRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "QualRow") {QualRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "SavedDateColumn"){SavedDateColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "Des-Num-Days_Score") 
+		if (wildcmp(L"*_Score", str2DVectorInputData[0][i]->Data()))
 		{	//Map Scoring Data to Key Map and then Key to Score
 			size_t key = availabilityData.mapNumberScorableType.size();
 			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Des-Num-Days_Score"));
+				.insert(std::pair<int, std::wstring>(key, str2DVectorInputData[0][i]->Data()));
 			availabilityData.mapScorableNumToScore
 				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
 		}
-		if (str2DVectorInputData[0][i] == "Pref-Num-Days-In-Row_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Pref-Num-Days-In-Row_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Max-Num-Days-In-Row_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Max-Num-Days-In-Row_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "On-Off-On_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"On-Off-On_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Alert-Before-Gray-Day_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Alert-Before-Gray-Day_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Dinner-and-Movie_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Dinner-and-Movie_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "2-Supers_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"2-Supers_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "2-SOFs_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"2-SOFs_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Scheduled-On-Desired-Day_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Scheduled-On-Desired-Day_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Scheduled-On-UnDesired-Day_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Scheduled-On-UnDesired-Day_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "D&M-On-Desired-Day_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"D&M-On-Desired-Day_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Bucket-Scheduled-Difference_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Bucket-Scheduled-Difference_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}
-		if (str2DVectorInputData[0][i] == "Too-Many-Grey-Days_Score")
-		{
-			size_t key = availabilityData.mapNumberScorableType.size();
-			availabilityData.mapNumberScorableType
-				.insert(std::pair<int, std::wstring>(key, L"Too-Many-Grey-Days_Score"));
-			availabilityData.mapScorableNumToScore
-				.insert(std::pair<int, int>(key, _wtoi(str2DVectorInputData[1][i]->Data())));
-		}		
 	}
 
 	const size_t numberOfDayColumns = (LastDayOfMonthColumn - FirstDayColumn) + 1;
@@ -321,49 +225,56 @@ void FileFunctions::buildAvailabilityData()
 	int** ppPrefArray;
 
 	ppIntDateDayDayTypeArray = new int*[3];
-	for (unsigned int i = 0;i < 3;i++)
+	for (size_t i = 0;i < 3;i++)
 	{
 		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
 	}
 
 	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
-	for (unsigned int i = 0;i < numberOfDataRows;i++)
+	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
 	}
 
 	ppIntWingmanPrefArray = new int*[numberOfDataRows];
-	for (unsigned int i = 0;i < numberOfDataRows;i++)
+	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
 	}
 
 	ppIntQualArray = new int*[numberOfDataRows];
-	for (unsigned int i = 0;i < numberOfDataRows;i++)
+	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
 		ppIntQualArray[i] = new int[numberOfQualColumns];
 	}
 
 	ppPrefArray = new int*[numberOfDataRows];
-	for (unsigned int i = 0;i < numberOfDataRows;i++)
+	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
 		ppPrefArray[i] = new int[numberOfPrefColumns];
 	}
 
-	for(unsigned int i = FirstDataRow - 1;i < LastDataRow;i++)
+	for(size_t i = FirstDataRow - 1;i < LastDataRow - 1;i++)
 	{
-		availabilityData.mapNumberName.insert(std::pair<unsigned int, wstring>(i - FirstDataRow, ws2DVectorInputData[i][IDColumn]));
+		availabilityData.mapNumberName.insert(std::pair<size_t, wstring>(i - FirstDataRow, ws2DVectorInputData[i][IDColumn-1]));
 	}
 
-	for (unsigned int i = FirstQualColumn - 1; i < LastQualColumn;i++)
+	for (size_t i = FirstQualColumn - 1; i < LastQualColumn - 1;i++)
 	{
-		availabilityData.mapNumberQualType.insert(std::pair<unsigned int, wstring>(i - FirstQualColumn, ws2DVectorInputData[QualRow][i]));
+		availabilityData.mapNumberQualType.insert(std::pair<size_t, wstring>(i - FirstQualColumn, ws2DVectorInputData[QualRow][i]));
 	}
-	 
-	for (unsigned int i = FirstDataRow - 1; i < LastDataRow;i++)
+	
+	for (size_t i = FirstDataRow - 1;i < LastDataRow - 1;i++)
 	{
-		availabilityData.mapNameNumToBucket.insert(std::pair<unsigned int, unsigned int>(i - FirstDataRow, std::stoi(ws2DVectorInputData[i][BucketColumn - 1])));
+		availabilityData.mapNameNumToBucket.insert(std::pair<size_t, size_t>(i - FirstDataRow, stoi(ws2DVectorInputData[i][BucketColumn-1])));
 	}
+
+	for (size_t i = FirstPreferenceColumn - 1;i < LastPreferenceColumn;i++)
+	{
+		availabilityData.mapNumberPrefType.insert(std::pair<size_t, wstring>(i - FirstPreferenceColumn, ws2DVectorInputData[PrefRow - 1][i]));
+	}
+
+
 
 }
 
@@ -386,4 +297,41 @@ inline T** FileFunctions::vectorParser2D(std::vector<std::vector<T>> vectorToPar
 		}
 	}
 	return returnArray;
+}
+
+
+bool FileFunctions::wildcmp(const wchar_t *wild, const wchar_t *string) {
+	// Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
+	const wchar_t *cp = NULL, *mp = NULL;
+
+	while ((*string) && (*wild != '*')) {
+		if ((*wild != *string) && (*wild != '?')) {
+			return false;
+		}
+		wild++;
+		string++;
+	}
+
+	while (*string) {
+		if (*wild == '*') {
+			if (!*++wild) {
+				return true;
+			}
+			mp = wild;
+			cp = string + 1;
+		}
+		else if ((*wild == *string) || (*wild == '?')) {
+			wild++;
+			string++;
+		}
+		else {
+			wild = mp;
+			string = cp++;
+		}
+	}
+
+	while (*wild == '*') {
+		wild++;
+	}
+	return !*wild;
 }
