@@ -6,8 +6,11 @@ struct AvailabilityData
 	std::map<unsigned int, std::wstring> mapNumberName;
 	std::map<unsigned int, std::wstring> mapNumberScorableType;
 	std::map<unsigned int, std::wstring> mapNumberQualType;
+	std::map<unsigned int, std::wstring> mapNumberToPrefType;
 	std::map<unsigned int, unsigned int> mapScorableNumToScore;
 	std::map<unsigned int, unsigned int> mapNameNumToBucket;
+	std::map<unsigned int, int*> mapNameNumToAvailabilityData;
+	std::map<unsigned int, int*> mapNameNumToWingmanPrefData;
 
 	enum weekdays { Sun, Mon, Tue, Wed, Thu, Fri, Sat };
 	enum dayTypes { F, W, G };

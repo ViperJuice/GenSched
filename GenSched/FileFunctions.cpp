@@ -142,18 +142,18 @@ void FileFunctions::buildAvailabilityData()
 	unsigned int LastPairRequestColumn;
 	unsigned int FirstDataRow;
 	unsigned int LastDataRow;
-
 	unsigned int DayOfMonthRow;
 	unsigned int WeekDayRow;
 	unsigned int DayTypeRow;
 	unsigned int PrefRow;
 	unsigned int QualRow;
-
 	unsigned int FirstQualColumn;
 	unsigned int LastQualColumn;
+	unsigned int BucketColumn;
 	unsigned int FirstPreferenceColumn;
 	unsigned int LastPreferenceColumn;
 	unsigned int SavedDateColumn;
+
 	for (int i = 0;i < str2DVectorInputData[0].size();i++)
 	{	//Capture Column and Row Index Data
 		if (str2DVectorInputData[0][i] == "IDColumn"){IDColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
@@ -163,10 +163,11 @@ void FileFunctions::buildAvailabilityData()
 		if (str2DVectorInputData[0][i] == "LastDayOfMonthColumn") { LastDayOfMonthColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstPairRequestColumn"){FirstPairRequestColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastPairRequestColumn"){LastPairRequestColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "FirstQualColumn") { FirstQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "LastQualColumn") { LastQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "FirstPreferenceColumn") { FirstPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
-		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") { LastPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "BucketColumn") {BucketColumn = _wtoi(str2DVectorInputData[1][i]->Data()); }
+		if (str2DVectorInputData[0][i] == "FirstQualColumn") {FirstQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastQualColumn") {LastQualColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "FirstPreferenceColumn") {FirstPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
+		if (str2DVectorInputData[0][i] == "LastPreferenceColumn") {LastPreferenceColumn = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "FirstDataRow"){FirstDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "LastDataRow"){LastDataRow = _wtoi(str2DVectorInputData[1][i]->Data());}
 		if (str2DVectorInputData[0][i] == "DayOfMonthRow") {DayOfMonthRow = _wtoi(str2DVectorInputData[1][i]->Data());}
@@ -349,19 +350,24 @@ void FileFunctions::buildAvailabilityData()
 		ppPrefArray[i] = new int[numberOfPrefColumns];
 	}
 
-	std::map<int, int> mapNameNumToBucket;
-	for(unsigned int i = FirstDataRow - 1;i < LastDataRow - 1;i++)
+	for(unsigned int i = FirstDataRow - 1;i < LastDataRow;i++)
 	{
 		availabilityData.mapNumberName.insert(std::pair<unsigned int, wstring>(i - FirstDataRow, ws2DVectorInputData[i][IDColumn]));
 	}
 
-	for (unsigned int i = FirstQualColumn - 1; i < LastQualColumn - 1;i++)
+	for (unsigned int i = FirstQualColumn - 1; i < LastQualColumn;i++)
 	{
 		availabilityData.mapNumberQualType.insert(std::pair<unsigned int, wstring>(i - FirstQualColumn, ws2DVectorInputData[QualRow][i]));
 	}
 	 
+	for (unsigned int i = FirstDataRow - 1; i < LastDataRow;i++)
+	{
+		availabilityData.mapNameNumToBucket.insert(std::pair<unsigned int, unsigned int>(i - FirstDataRow, std::stoi(ws2DVectorInputData[i][BucketColumn - 1])));
+	}
 
 }
+
+
 //Template to cut out a section of 2D vector and return it as a 2D Array
 template<typename T>
 inline T** FileFunctions::vectorParser2D(std::vector<std::vector<T>> vectorToParse,
