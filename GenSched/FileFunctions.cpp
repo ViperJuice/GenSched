@@ -193,7 +193,7 @@ void FileFunctions::buildAvailabilityData()
 	const size_t numberOfPrefColumns = (LastPreferenceColumn - FirstPreferenceColumn) + 1;
 	const size_t numberOfDataRows = (LastDataRow - FirstDataRow) + 1;
 
-	std::wstring** wstrIntDateDayDayTypeArray = nullptr;
+	std::wstring** wstrDateDayDayTypeArray = nullptr;
 	std::wstring** wstrAvailabilityTypeArray = nullptr;
 	std::wstring** wstrWingmanPrefArray = nullptr;
 	std::wstring** wstrQualArray = nullptr;
@@ -212,47 +212,11 @@ void FileFunctions::buildAvailabilityData()
 		wstrVct.clear();
 	}
 
-	wstrIntDateDayDayTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayColumn - 1, LastDayOfMonthColumn - 1, 0, 2);
+	wstrDateDayDayTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayColumn - 1, LastDayOfMonthColumn - 1, 0, 2);
 	wstrAvailabilityTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayColumn - 1, LastDayOfMonthColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrWingmanPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPairRequestColumn - 1, LastPairRequestColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrQualArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstQualColumn - 1, LastQualColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPreferenceColumn - 1, LastPreferenceColumn - 1, FirstDataRow - 1, LastDataRow - 1);
-
-	int** ppIntDateDayDayTypeArray;
-	int** ppIntAvailabilityTypeArray;
-	int** ppIntWingmanPrefArray;
-	int** ppIntQualArray;
-	int** ppPrefArray;
-
-	ppIntDateDayDayTypeArray = new int*[3];
-	for (size_t i = 0;i < 3;i++)
-	{
-		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
-	}
-
-	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
-	for (size_t i = 0;i < numberOfDataRows;i++)
-	{
-		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
-	}
-
-	ppIntWingmanPrefArray = new int*[numberOfDataRows];
-	for (size_t i = 0;i < numberOfDataRows;i++)
-	{
-		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
-	}
-
-	ppIntQualArray = new int*[numberOfDataRows];
-	for (size_t i = 0;i < numberOfDataRows;i++)
-	{
-		ppIntQualArray[i] = new int[numberOfQualColumns];
-	}
-
-	ppPrefArray = new int*[numberOfDataRows];
-	for (size_t i = 0;i < numberOfDataRows;i++)
-	{
-		ppPrefArray[i] = new int[numberOfPrefColumns];
-	}
 
 	for(size_t i = FirstDataRow - 1;i < LastDataRow - 1;i++)
 	{
@@ -274,7 +238,134 @@ void FileFunctions::buildAvailabilityData()
 		availabilityData.mapNumberPrefType.insert(std::pair<size_t, wstring>(i - FirstPreferenceColumn, ws2DVectorInputData[PrefRow - 1][i]));
 	}
 
+	int** ppIntDateDayDayTypeArray;
+	int** ppIntAvailabilityTypeArray;
+	int** ppIntWingmanPrefArray;
+	int** ppIntQualArray;
+	int** ppPrefArray;
 
+	ppIntDateDayDayTypeArray = new int*[3];
+	for (size_t i = 0;i < 3;i++)
+	{
+		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
+	}
+	for (size_t i = 0;i < numberOfDayColumns; i++)
+	{
+		if (wstrDateDayDayTypeArray[0][i] == L"Sun")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sun;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Mon")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Mon;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Tue")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Tue;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Wed")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Wed;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Thu")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Thu;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Fri")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Fri;
+		}
+		else if (wstrDateDayDayTypeArray[0][i] == L"Sat")
+		{
+			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sat;
+		}
+	}
+	for (size_t i = 0;i < numberOfDayColumns; i++)
+	{
+		if (wstrDateDayDayTypeArray[1][i] == L"F")
+		{
+			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::F;
+		}
+		else if (wstrDateDayDayTypeArray[1][i] == L"W")
+		{
+			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::W;
+		}
+		else if (wstrDateDayDayTypeArray[1][i] == L"G")
+		{
+			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::G;
+		}
+	}
+	for (size_t i = 0;i < numberOfDayColumns; i++)
+	{
+			ppIntDateDayDayTypeArray[2][i] = stoi(wstrDateDayDayTypeArray[2][i]);
+	}
+
+	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
+	for (size_t i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
+		for (size_t j = 0; numberOfDataRows;j++)
+		{
+			if (wstrAvailabilityTypeArray[i][j] == L"-2")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::PLEASE_NO;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"-1")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::RATHER_NOT;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"0")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DONT_CARE;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"1")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_IS_FINE;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"2")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_PLEASE;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"D")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DINNER_AND_MOVIE;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"X")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::UNAVAILABLE;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"T")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::TDY;
+			}
+			else if (wstrAvailabilityTypeArray[i][j] == L"L")
+			{
+				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::LEAVE;
+			}
+
+
+		}
+	}
+
+
+
+	ppIntWingmanPrefArray = new int*[numberOfDataRows];
+	for (size_t i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
+	}
+
+	ppIntQualArray = new int*[numberOfDataRows];
+	for (size_t i = 0;i < numberOfDataRows;i++)
+	{
+		ppIntQualArray[i] = new int[numberOfQualColumns];
+	}
+
+	ppPrefArray = new int*[numberOfDataRows];
+	for (size_t i = 0;i < numberOfDataRows;i++)
+	{
+		ppPrefArray[i] = new int[numberOfPrefColumns];
+	}
 
 }
 
