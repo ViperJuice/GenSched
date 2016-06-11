@@ -237,136 +237,201 @@ void FileFunctions::buildAvailabilityData()
 	{
 		availabilityData.mapNumberPrefType.insert(std::pair<size_t, wstring>(i - FirstPreferenceColumn, ws2DVectorInputData[PrefRow - 1][i]));
 	}
+	for (auto i = availabilityData.mapNumberScorableType.begin();i != availabilityData.mapNumberScorableType.end();i++)
+	{
+		for (auto j = availabilityData.mapNumberPrefType.begin();j != availabilityData.mapNumberPrefType.end();j++) 
+		{
+			if (wildcmp(j->second(), i->second())
+			{
 
-	int** ppIntDateDayDayTypeArray;
-	int** ppIntAvailabilityTypeArray;
-	int** ppIntWingmanPrefArray;
-	int** ppIntQualArray;
-	int** ppPrefArray;
+			}
+		}
+		
+	}
 
-	ppIntDateDayDayTypeArray = new int*[3];
+	availabilityData.ppIntDateDayDayTypeArray = nullptr;
+	availabilityData.ppIntAvailabilityTypeArray = nullptr;
+	availabilityData.ppIntWingmanPrefArray = nullptr;
+	availabilityData.ppBoolQualArray = nullptr;
+	availabilityData.ppIntPrefArray = nullptr;
+
+	availabilityData.ppIntDateDayDayTypeArray = new int*[3];
 	for (size_t i = 0;i < 3;i++)
 	{
-		ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
+		availabilityData.ppIntDateDayDayTypeArray[i] = new int[numberOfDayColumns];
 	}
 	for (size_t i = 0;i < numberOfDayColumns; i++)
 	{
 		if (wstrDateDayDayTypeArray[0][i] == L"Sun")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sun;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sun;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Mon")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Mon;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Mon;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Tue")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Tue;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Tue;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Wed")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Wed;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Wed;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Thu")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Thu;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Thu;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Fri")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Fri;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Fri;
 		}
 		else if (wstrDateDayDayTypeArray[0][i] == L"Sat")
 		{
-			ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sat;
+			availabilityData.ppIntDateDayDayTypeArray[0][i] = AvailabilityData::Sat;
 		}
 	}
 	for (size_t i = 0;i < numberOfDayColumns; i++)
 	{
 		if (wstrDateDayDayTypeArray[1][i] == L"F")
 		{
-			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::F;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::F;
 		}
 		else if (wstrDateDayDayTypeArray[1][i] == L"W")
 		{
-			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::W;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::W;
 		}
 		else if (wstrDateDayDayTypeArray[1][i] == L"G")
 		{
-			ppIntDateDayDayTypeArray[1][i] = AvailabilityData::G;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::G;
 		}
 	}
 	for (size_t i = 0;i < numberOfDayColumns; i++)
 	{
-			ppIntDateDayDayTypeArray[2][i] = stoi(wstrDateDayDayTypeArray[2][i]);
+		availabilityData.ppIntDateDayDayTypeArray[2][i] = stoi(wstrDateDayDayTypeArray[2][i]);
 	}
 
-	ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
+	availabilityData.ppIntAvailabilityTypeArray = new int*[numberOfDataRows];
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
-		for (size_t j = 0; numberOfDataRows;j++)
+		availabilityData.ppIntAvailabilityTypeArray[i] = new int[numberOfDayColumns];
+		for (size_t j = 0; j < numberOfDayColumns;j++)
 		{
 			if (wstrAvailabilityTypeArray[i][j] == L"-2")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::PLEASE_NO;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::PLEASE_NO;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"-1")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::RATHER_NOT;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::RATHER_NOT;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"0")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DONT_CARE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DONT_CARE;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"1")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_IS_FINE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_IS_FINE;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"2")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_PLEASE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::ALERT_PLEASE;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"D")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DINNER_AND_MOVIE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::DINNER_AND_MOVIE;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"X")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::UNAVAILABLE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::UNAVAILABLE;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"T")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::TDY;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::TDY;
 			}
 			else if (wstrAvailabilityTypeArray[i][j] == L"L")
 			{
-				ppIntAvailabilityTypeArray[i][j] = AvailabilityData::LEAVE;
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::LEAVE;
 			}
-
+			 
 
 		}
 	}
 
-
-
-	ppIntWingmanPrefArray = new int*[numberOfDataRows];
+	availabilityData.ppIntWingmanPrefArray = new int*[numberOfDataRows];
+	//Convert wstring array to int array with int key from mapNumToNameMap
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
+		availabilityData.ppIntWingmanPrefArray[i] = new int[numberOfWingmanColumns];
+		for (size_t j = 0;j < numberOfWingmanColumns;j++)
+		{
+			if (wstrWingmanPrefArray[i][j] != L"" && wstrWingmanPrefArray[i][j] != L"0")
+			{
+				//lookup integer key by name
+				const wstring nameToFind = wstrWingmanPrefArray[i][j];
+				auto findResult = std::find_if(std::begin(availabilityData.mapNumberName), std::end(availabilityData.mapNumberName), [&](const std::pair<int, wstring> &pair)
+				{
+					return pair.second == nameToFind;
+				});
+
+				size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
+				wstring foundValue = nullptr;
+				if (findResult != std::end(availabilityData.mapNumberName))
+				{
+					foundKey = findResult->first;
+					//foundValue = findResult->second;
+					availabilityData.ppIntWingmanPrefArray[i][j] = foundKey;
+				}
+			}
+		}
 	}
 
-	ppIntQualArray = new int*[numberOfDataRows];
+	availabilityData.ppBoolQualArray = new bool* [numberOfDataRows];
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		ppIntQualArray[i] = new int[numberOfQualColumns];
+		availabilityData.ppBoolQualArray[i] = new bool[numberOfQualColumns];
+		for (size_t j = 0;j < numberOfQualColumns;j++)
+		{
+			if (wstrQualArray[i][j] == L"True" || wstrQualArray[i][j] == L"true" || wstrQualArray[i][j] == L"T" || wstrQualArray[i][j] == L"t" ||
+				wstrQualArray[i][j] == L"1" || wstrQualArray[i][j] == L"Yes" || wstrQualArray[i][j] == L"yes" || wstrQualArray[i][j] == L"Y" || wstrQualArray[i][j] == L"y")
+			{
+				availabilityData.ppBoolQualArray[i][j] = true;
+			}
+			else
+			{
+				availabilityData.ppBoolQualArray[i][j] = false;
+			}
+		}
+
 	}
 
-	ppPrefArray = new int*[numberOfDataRows];
+	availabilityData.ppIntPrefArray = new int*[numberOfDataRows];
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		ppPrefArray[i] = new int[numberOfPrefColumns];
-	}
+		availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
+		//Convert wstring array to int array with int key from mapNumToPref
+		for (size_t i = 0;i < numberOfDataRows;i++)
+		{
+			availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
+			for (size_t j = 0;j < numberOfPrefColumns;j++)
+			{
+				const wstring nameToFind = wstrPrefArray[i][j];
+				auto findResult = std::find_if(std::begin(availabilityData.mapNumberPrefType), std::end(availabilityData.mapNumberPrefType), [&](const std::pair<int, wstring> &pair)
+				{
+					return pair.second == nameToFind;
+				});
 
+				size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
+				wstring foundValue = nullptr;
+				if (findResult != std::end(availabilityData.mapNumberPrefType))
+				{
+					foundKey = findResult->first;
+					//foundValue = findResult->second;
+					availabilityData.ppIntPrefArray[i][j] = foundKey;
+				}
+			}
+		}
+	}
 }
 
 
@@ -391,7 +456,8 @@ inline T** FileFunctions::vectorParser2D(std::vector<std::vector<T>> vectorToPar
 }
 
 
-bool FileFunctions::wildcmp(const wchar_t *wild, const wchar_t *string) {
+bool FileFunctions::wildcmp(const wchar_t *wild, const wchar_t *string) 
+{
 	// Written by Jack Handy - <A href="mailto:jakkhandy@hotmail.com">jakkhandy@hotmail.com</A>
 	const wchar_t *cp = NULL, *mp = NULL;
 

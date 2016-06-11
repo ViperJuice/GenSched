@@ -9,6 +9,7 @@ struct AvailabilityData
 	std::map<size_t, std::wstring> mapNumberPrefType;
 	std::map<size_t, size_t> mapScorableNumToScore;
 	std::map<size_t, size_t> mapNameNumToBucket;
+	std::map<size_t, std::size_t> mapPrefNumToScorableNum; // associate preferences to scorable types where applicable
 
 
 	enum weekdays { Sun, Mon, Tue, Wed, Thu, Fri, Sat };
@@ -19,8 +20,8 @@ struct AvailabilityData
 	int** ppIntDateDayDayTypeArray;
 	int** ppIntAvailabilityTypeArray;
 	int** ppIntWingmanPrefArray;
-	int** ppIntQualArray;
-	int** ppPrefArray;
+	bool** ppBoolQualArray;
+	int** ppIntPrefArray;
 	int year;
 	std::wstring month;
 };
