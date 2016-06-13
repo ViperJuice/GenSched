@@ -241,9 +241,10 @@ void FileFunctions::buildAvailabilityData()
 	{
 		for (auto j = availabilityData.mapNumberPrefType.begin();j != availabilityData.mapNumberPrefType.end();j++) 
 		{
-			if (wildcmp(j->second(), i->second())
-			{
 
+			if (wildcmp((j->second + L"*").c_str(), i->second.c_str()))
+			{
+				
 			}
 		}
 		
