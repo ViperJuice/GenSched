@@ -34,7 +34,7 @@ FileFunctions::~FileFunctions()
 
 AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAccessStream^ stream) 
 {
-	create_task([this, stream]()
+	auto t = create_task([this, stream]()
 	{
 		this->dataReader = ref new  Windows::Storage::Streams::DataReader(stream->GetInputStreamAt(0));
 		return this->dataReader->LoadAsync(stream->Size);
@@ -52,16 +52,18 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 	{
 		buildAvailabilityData();
 	})
-	.then([](task<void> t) 
+	.then([](task<void> tsk) 
 	{
-		try {
-			t.get();
+		try
+		{
+			tsk.get();
 		}
 		catch (Platform::Exception^ e)
 		{
 			cout << e->Message->Data();
 		}
 	});
+	t.wait();
 	return availabilityData;
 }
 
@@ -218,24 +220,24 @@ void FileFunctions::buildAvailabilityData()
 	wstrQualArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstQualColumn - 1, LastQualColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPreferenceColumn - 1, LastPreferenceColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 
-	for(size_t i = FirstDataRow - 1;i < LastDataRow - 1;i++)
+	for(size_t i = FirstDataRow - 1;i < LastDataRow;i++)
 	{
-		availabilityData.mapNumberName.insert(std::pair<size_t, wstring>(i - FirstDataRow, ws2DVectorInputData[i][IDColumn-1]));
+		availabilityData.mapNumberName.insert(std::pair<size_t, wstring>(i - (FirstDataRow - 1), ws2DVectorInputData[i][IDColumn - 1]));
 	}
 
-	for (size_t i = FirstQualColumn - 1; i < LastQualColumn - 1;i++)
+	for (size_t i = FirstQualColumn - 1; i < LastQualColumn;i++)
 	{
-		availabilityData.mapNumberQualType.insert(std::pair<size_t, wstring>(i - FirstQualColumn, ws2DVectorInputData[QualRow][i]));
+		availabilityData.mapNumberQualType.insert(std::pair<size_t, wstring>(i - (FirstQualColumn - 1), ws2DVectorInputData[QualRow - 1][i]));
 	}
 	
-	for (size_t i = FirstDataRow - 1;i < LastDataRow - 1;i++)
+	for (size_t i = FirstDataRow - 1;i < LastDataRow;i++)
 	{
-		availabilityData.mapNameNumToBucket.insert(std::pair<size_t, size_t>(i - FirstDataRow, stoi(ws2DVectorInputData[i][BucketColumn-1])));
+		availabilityData.mapNameNumToBucket.insert(std::pair<size_t, size_t>(i - (FirstDataRow - 1), stoi(ws2DVectorInputData[i][BucketColumn - 1])));
 	}
 
 	for (size_t i = FirstPreferenceColumn - 1;i < LastPreferenceColumn;i++)
 	{
-		availabilityData.mapNumberPrefType.insert(std::pair<size_t, wstring>(i - FirstPreferenceColumn, ws2DVectorInputData[PrefRow - 1][i]));
+		availabilityData.mapNumberPrefType.insert(std::pair<size_t, wstring>(i - (FirstPreferenceColumn - 1), ws2DVectorInputData[PrefRow - 1][i]));
 	}
 	for (auto i = availabilityData.mapNumberScorableType.begin();i != availabilityData.mapNumberScorableType.end();i++)
 	{
@@ -409,27 +411,22 @@ void FileFunctions::buildAvailabilityData()
 	availabilityData.ppIntPrefArray = new int*[numberOfDataRows];
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
 		//Convert wstring array to int array with int key from mapNumToPref
-		for (size_t i = 0;i < numberOfDataRows;i++)
+		availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
+		for (size_t j = 0;j < numberOfPrefColumns;j++)
 		{
-			availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
-			for (size_t j = 0;j < numberOfPrefColumns;j++)
+			const wstring nameToFind = wstrPrefArray[i][j];
+			auto findResult = std::find_if(std::begin(availabilityData.mapNumberPrefType), std::end(availabilityData.mapNumberPrefType), [&](const std::pair<int, wstring> &pair)
 			{
-				const wstring nameToFind = wstrPrefArray[i][j];
-				auto findResult = std::find_if(std::begin(availabilityData.mapNumberPrefType), std::end(availabilityData.mapNumberPrefType), [&](const std::pair<int, wstring> &pair)
-				{
-					return pair.second == nameToFind;
-				});
-
-				size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
-				wstring foundValue = nullptr;
-				if (findResult != std::end(availabilityData.mapNumberPrefType))
-				{
-					foundKey = findResult->first;
-					//foundValue = findResult->second;
-					availabilityData.ppIntPrefArray[i][j] = foundKey;
-				}
+				return pair.second == nameToFind;
+			});
+			size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
+			wstring foundValue = L"";
+			if (findResult != std::end(availabilityData.mapNumberPrefType))
+			{
+				foundKey = findResult->first;
+				//foundValue = findResult->second;
+				availabilityData.ppIntPrefArray[i][j] = foundKey;
 			}
 		}
 	}
@@ -448,7 +445,7 @@ inline T** FileFunctions::vectorParser2D(std::vector<std::vector<T>> vectorToPar
 	for (int i = 0; i < numberOfRows; i++) {returnArray[i] = new T[numberOfColumns]; }
 	for (int i = 0 ; i < numberOfRows ; i++)
 	{
-		for (int j = 0 ; j < numberOfColumns - 1 ; j++)
+		for (int j = 0 ; j < numberOfColumns; j++)
 		{
 			returnArray[i][j] = vectorToParse[i + firstRow][j + firstColumn];
 		}

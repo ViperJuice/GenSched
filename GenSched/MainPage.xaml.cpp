@@ -63,17 +63,7 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 			cout << e->Message->Data();
 			return availabilityData;
 		}
-	})
-	/*.then([this](Windows::Storage::Streams::IRandomAccessStream^ stream)
-	{
-		this->reader = ref new  Windows::Storage::Streams::DataReader(stream->GetInputStreamAt(0));
-		return this->reader->LoadAsync(stream->Size);
-	})
-	.then([this](unsigned int bytes)
-	{
-		strInputData = this->reader->ReadString(bytes);
-		cout << strInputData->Data();
-	})*/
+	}, task_continuation_context::use_arbitrary())
 	.then([](AvailabilityData ad)
 	{
 		cout << ad.month.data();
