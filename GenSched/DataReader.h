@@ -11,7 +11,8 @@
 
 using namespace std;
 
-class DataReader {
+class DataReader 
+{
 public:
 	virtual ~DataReader()=0;
 	virtual AvailabilityData read_data(Windows::Storage::Streams::IRandomAccessStream^ stream)=0;

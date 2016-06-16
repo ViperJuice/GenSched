@@ -20,6 +20,9 @@ namespace GenSched
 
 	private:
 		Platform::String^ strInputData;
+		size_t iNumberOfSchedulesToBuild = 10;
+		pair<wstring,wstring>** wstrSchedules;
+		ScheduleData scheduleData;
 		AvailabilityData availabilityData;
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		Windows::Storage::Streams::DataReader^ reader;

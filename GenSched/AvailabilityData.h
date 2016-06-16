@@ -17,11 +17,14 @@ struct AvailabilityData
 	enum availabilityType
 		{UNAVAILABLE = -5, LEAVE = -4, TDY = -3, PLEASE_NO = -2, RATHER_NOT = -1, DONT_CARE = 0, ALERT_IS_FINE = 1,
 		ALERT_PLEASE = 2, DINNER_AND_MOVIE = 3};
+	enum preferenceStrength {HATE_IT = -2, DONT_LIKE_IT = -1, LIKE_IT = 1, LOVE_IT = 2};
 	int** ppIntDateDayDayTypeArray;
 	int** ppIntAvailabilityTypeArray;
 	int** ppIntWingmanPrefArray;
 	bool** ppBoolQualArray;
 	int** ppIntPrefArray;
+	size_t iNumberOfAvailabilityPeriods = -1;
+	size_t iNumberOfAvailabilityDataRows = -1;
 	int year;
 	std::wstring month;
 };

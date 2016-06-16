@@ -21,6 +21,10 @@
     <ClCompile Include="FileFunctions.cpp" />
     <ClCompile Include="DataReaderFactory.cpp" />
     <ClCompile Include="CsvDataReaderFactory.cpp" />
+    <ClCompile Include="SchedulingEngineFactory.cpp" />
+    <ClCompile Include="EvolutionSchedulingEngineFactory.cpp" />
+    <ClCompile Include="SchedulingEngine.cpp" />
+    <ClCompile Include="EvolutionSchedulingEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -34,6 +38,11 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="AvailabilityData.h" />
+    <ClInclude Include="SchedulingEngineFactory.h" />
+    <ClInclude Include="EvolutionSchedulingEngineFactory.h" />
+    <ClInclude Include="SchedulingEngine.h" />
+    <ClInclude Include="EvolutionSchedulingEngine.h" />
+    <ClInclude Include="ScheduleData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">

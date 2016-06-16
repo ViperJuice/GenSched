@@ -5,12 +5,8 @@
  *      Author: Jenner
  */
 
-#include "CSVDataReader.h"
-#include "FileFunctions.h"
+
 #include "pch.h"
-#include <string>
-#include <iostream>
-#include <windows.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX

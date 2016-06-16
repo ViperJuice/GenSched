@@ -64,8 +64,12 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 			return availabilityData;
 		}
 	}, task_continuation_context::use_arbitrary())
-	.then([](AvailabilityData ad)
+	.then([this](AvailabilityData ad)
 	{
 		cout << ad.month.data();
+		SchedulingEngineFactory* schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
+		SchedulingEngine* schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
+		scheduleData = schedulingEngine->buildSchedule(ad, iNumberOfSchedulesToBuild);
 	});
+
 }

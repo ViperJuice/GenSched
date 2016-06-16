@@ -220,6 +220,9 @@ void FileFunctions::buildAvailabilityData()
 	wstrQualArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstQualColumn - 1, LastQualColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPreferenceColumn - 1, LastPreferenceColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 
+	availabilityData.iNumberOfAvailabilityPeriods = numberOfDayColumns;
+	availabilityData.iNumberOfAvailabilityDataRows = numberOfDataRows;
+
 	for(size_t i = FirstDataRow - 1;i < LastDataRow;i++)
 	{
 		availabilityData.mapNumberName.insert(std::pair<size_t, wstring>(i - (FirstDataRow - 1), ws2DVectorInputData[i][IDColumn - 1]));
@@ -415,25 +418,39 @@ void FileFunctions::buildAvailabilityData()
 	availabilityData.ppIntPrefArray = new int*[numberOfDataRows];
 	for (size_t i = 0;i < numberOfDataRows;i++)
 	{
-		//Convert wstring array to int array with int key from mapNumToPref
 		availabilityData.ppIntPrefArray[i] = new int[numberOfPrefColumns];
 		for (size_t j = 0;j < numberOfPrefColumns;j++)
 		{
-			const wstring nameToFind = wstrPrefArray[i][j];
-			auto findResult = std::find_if(std::begin(availabilityData.mapNumberPrefType), std::end(availabilityData.mapNumberPrefType), [&](const std::pair<int, wstring> &pair)
+			try 
 			{
-				return pair.second == nameToFind;
-			});
-			size_t foundKey = -1; // You might want to initialise this to a value you know is invalid in your map
-			wstring foundValue = L"";
-			if (findResult != std::end(availabilityData.mapNumberPrefType))
+				availabilityData.ppIntPrefArray[i][j] = stoi(wstrPrefArray[i][j]);
+			}
+			catch (invalid_argument e) //Handles Preferences that are not numeric
 			{
-				foundKey = findResult->first;
-				//foundValue = findResult->second;
-				availabilityData.ppIntPrefArray[i][j] = foundKey;
+				if (wstrPrefArray[i][j] == L"Hate It!") 
+				{
+					availabilityData.ppIntPrefArray[i][j] = AvailabilityData::HATE_IT;
+				}
+				else if (wstrPrefArray[i][j] == L"Don't Like It")
+				{
+					availabilityData.ppIntPrefArray[i][j] = AvailabilityData::DONT_LIKE_IT;
+				}
+				else if (wstrPrefArray[i][j] == L"Don't Care")
+				{
+					availabilityData.ppIntPrefArray[i][j] = AvailabilityData::DONT_CARE;
+				}
+				else if (wstrPrefArray[i][j] == L"Like It")
+				{
+					availabilityData.ppIntPrefArray[i][j] = AvailabilityData::LIKE_IT;
+				}
+				else if (wstrPrefArray[i][j] == L"Love It!")
+				{
+					availabilityData.ppIntPrefArray[i][j] = AvailabilityData::LOVE_IT;
+				}
 			}
 		}
 	}
+	//TODO add flying event capture and parsing
 }
 
 
