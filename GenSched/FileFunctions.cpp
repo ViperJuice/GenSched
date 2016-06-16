@@ -135,7 +135,7 @@ void FileFunctions::parseInputString()
 void FileFunctions::buildAvailabilityData()
 {	
 	availabilityData.month = str2DVectorInputData[0][0]->Data();
-	availabilityData.year = int (str2DVectorInputData[0][1]->Data());
+	availabilityData.year = _wtoi(str2DVectorInputData[0][1]->Data());
 	size_t IDColumn;
 	size_t FirstDayColumn;
 	size_t LastDayColumn;
@@ -246,7 +246,7 @@ void FileFunctions::buildAvailabilityData()
 
 			if (wildcmp((j->second + L"*").c_str(), i->second.c_str()))
 			{
-				
+				availabilityData.mapPrefNumToScorableNum.insert(std::pair<size_t, size_t>(j->first, i->first));
 			}
 		}
 		
@@ -377,7 +377,7 @@ void FileFunctions::buildAvailabilityData()
 					return pair.second == nameToFind;
 				});
 
-				size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
+				size_t foundKey = -1; // You might want to initialise this to a value you know is invalid in your map
 				wstring foundValue = nullptr;
 				if (findResult != std::end(availabilityData.mapNumberName))
 				{
@@ -385,6 +385,10 @@ void FileFunctions::buildAvailabilityData()
 					//foundValue = findResult->second;
 					availabilityData.ppIntWingmanPrefArray[i][j] = foundKey;
 				}
+			}
+			else
+			{
+				availabilityData.ppIntWingmanPrefArray[i][j] = -1;
 			}
 		}
 	}
@@ -420,7 +424,7 @@ void FileFunctions::buildAvailabilityData()
 			{
 				return pair.second == nameToFind;
 			});
-			size_t foundKey = 99999999999999; // You might want to initialise this to a value you know is invalid in your map
+			size_t foundKey = -1; // You might want to initialise this to a value you know is invalid in your map
 			wstring foundValue = L"";
 			if (findResult != std::end(availabilityData.mapNumberPrefType))
 			{
