@@ -14,12 +14,12 @@ class SchedulingEngine
 {
 public:
 	virtual ~SchedulingEngine()=0;
-	virtual ScheduleData buildSchedule(AvailabilityData, size_t);
+	virtual ScheduleData buildSchedule(AvailabilityData availabilityData, size_t iNumberOfSchedulesToBuild);
 
 private:
 	ScheduleData scheduleData;
-	virtual size_t* buildScheduleShell(AvailabilityData)=0;
-	virtual void fillScheduleShell(AvailabilityData, size_t*)=0;
+	virtual ScheduleData buildScheduleShell(AvailabilityData availabilityData);
+	virtual void fillScheduleShell(AvailabilityData availabilityData, ScheduleData scheduleData, size_t iNumberOfSchedulesToBuild)=0;
 
 };
 #endif /* SCHEDULINGENGINE_H_ */

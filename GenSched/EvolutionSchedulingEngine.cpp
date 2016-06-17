@@ -9,13 +9,8 @@ EvolutionSchedulingEngine::EvolutionSchedulingEngine()
 
 }
 
-
-size_t* EvolutionSchedulingEngine::buildScheduleShell(AvailabilityData)
+void EvolutionSchedulingEngine::fillScheduleShell(AvailabilityData availabilityData, ScheduleData scheduleData, size_t * iNumberOfSchedulesToBuild)
 {
-	return nullptr;
+
 }
 
-void EvolutionSchedulingEngine::fillScheduleShell(AvailabilityData, size_t *)
-{
-	throw ref new Platform::NotImplementedException();
-}

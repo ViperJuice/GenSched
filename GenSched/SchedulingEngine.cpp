@@ -9,11 +9,13 @@ ScheduleData SchedulingEngine::buildSchedule(AvailabilityData availabilityData, 
 {
 	
 	scheduleData.wstrSchedules = new pair<wstring, wstring>*[iNumberOfSchedulesToBuild];
+	scheduleData = buildScheduleShell(availabilityData);
+	fillScheduleShell(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 
 	return scheduleData;
 }
 
-size_t* SchedulingEngine::buildScheduleShell(AvailabilityData availabilityData)
+ScheduleData SchedulingEngine::buildScheduleShell(AvailabilityData availabilityData)
 {
 	//Build array of correct size to hold schedule
 	scheduleData.iTotalNumberOfSubPeriods = availabilityData.iNumberOfAvailabilityPeriods;
@@ -29,11 +31,11 @@ size_t* SchedulingEngine::buildScheduleShell(AvailabilityData availabilityData)
 			if (availabilityData.ppIntAvailabilityTypeArray[i][j]==AvailabilityData::DINNER_AND_MOVIE && scheduleData.iNumberOfSubPeriods[i] < 2)
 			{ 
 				scheduleData.iNumberOfSubPeriods[i] = 2;//Set number of sub periods to 2 for any Dinner & Movie Availability
-				scheduleData.iTotalNumberOfSubPeriods++;//Increase total number of subperiods by 1
+				scheduleData.iTotalNumberOfSubPeriods++;//Increase total number of sub-periods by 1
 			}
 		}
 	}
 	scheduleData.wstrScheduleShell = new pair<wstring, wstring>[scheduleData.iTotalNumberOfSubPeriods];
 
-	return nullptr;
+	return scheduleData;
 }

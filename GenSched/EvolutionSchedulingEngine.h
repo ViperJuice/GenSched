@@ -6,7 +6,6 @@ class EvolutionSchedulingEngine:
 public:
 	EvolutionSchedulingEngine();
 private:
-	virtual size_t* buildScheduleShell(AvailabilityData);
-	virtual void fillScheduleShell(AvailabilityData, size_t*);
+	virtual void fillScheduleShell(AvailabilityData availabilityData, ScheduleData scheduleData, size_t* iNumberOfSchedulesToBuild);
 };
 
