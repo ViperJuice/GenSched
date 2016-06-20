@@ -7,5 +7,6 @@ public:
 	EvolutionSchedulingEngineFactory();
 	~EvolutionSchedulingEngineFactory();
 	EvolutionSchedulingEngine* create_schedulingEngine();
+
 };
 

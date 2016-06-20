@@ -11,7 +11,6 @@ struct AvailabilityData
 	std::map<size_t, size_t> mapNameNumToBucket;
 	std::map<size_t, std::size_t> mapPrefNumToScorableNum; // associate preferences to scorable types where applicable
 
-
 	enum weekdays { Sun, Mon, Tue, Wed, Thu, Fri, Sat };
 	enum dayTypes { F, W, G };
 	enum availabilityType

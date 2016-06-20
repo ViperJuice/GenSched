@@ -10,8 +10,11 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <random>
+#include <future>
 #include "ScheduleData.h"
 #include "AvailabilityData.h"
+#include "ScheduleScorer.h"
 #include "App.xaml.h"
 #include "DataReader.h"
 #include "CSVDataReader.h"

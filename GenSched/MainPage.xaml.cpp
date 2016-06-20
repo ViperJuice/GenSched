@@ -69,7 +69,7 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 		cout << ad.month.data();
 		SchedulingEngineFactory* schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
 		SchedulingEngine* schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
-		scheduleData = schedulingEngine->buildSchedule(ad, iNumberOfSchedulesToBuild);
+		scheduleData = schedulingEngine->BuildSchedule(ad, iNumberOfSchedulesToBuild);
 	});
 
 }
