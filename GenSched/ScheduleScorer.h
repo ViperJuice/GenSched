@@ -44,6 +44,8 @@ private:
 	const size_t iBucketScheduledDaysDifferenceScoreKey;
 	const size_t iDSGScheduledOnDesiredDayScoreKey;
 	const size_t iBucketTooManyGreyDayScoreKey;
+	const size_t iScheduledWithDesiredWingmanScoreKey;
+	const size_t iPositionSwapScoreKey;
 	const size_t MAXDAYS = 7;
 
 	const int iMAXDAYSPenalty = -1000;
@@ -59,7 +61,9 @@ private:
 	const int iDinnerAndMovieOnDesiredDay_Score;
 	const int iDifferenceFromBucket_Score;
 	const int iTooManyGreyDays_Score;
-	const int iDSGSceduledOnAvailableDayScore;
+	const int iDSGSceduledOnAvailableDay_Score;
+	const int iPositionSwap_Score;
+	const int iScheduledWithDesiredWingman_Score;
 
 };
 

@@ -359,7 +359,10 @@ void FileFunctions::buildAvailabilityData()
 			{
 				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::LEAVE;
 			}
-			 
+			else if (wstrAvailabilityTypeArray[i][j] == L"F")
+			{
+				availabilityData.ppIntAvailabilityTypeArray[i][j] = AvailabilityData::CT_FLY_DAY;
+			}
 
 		}
 	}
