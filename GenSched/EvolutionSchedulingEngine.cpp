@@ -163,7 +163,7 @@ size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::m
 		return pair.second == nameToFind;
 	});
 
-	size_t foundKey = -1; // You might want to initialise this to a value you know is invalid in your map
+	size_t foundKey = -1; // Initialise this to an invalid value
 	if (findResult != std::end(mapToLookIn))
 	{
 		foundKey = findResult->first;
