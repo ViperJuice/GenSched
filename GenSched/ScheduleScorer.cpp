@@ -8,12 +8,14 @@ ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData 
 	iMaxNumberOfDaysKey(FindMapKeyFromValue(L"Max#", availabilityData.mapNumberPrefType)),
 	iOnOffOnPrefKey(FindMapKeyFromValue(L"O-O-O", availabilityData.mapNumberPrefType)),
 	iAlertBeforeGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
+	//TODO iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
 	iDinnerAndMovie1stHalfPrefKey(FindMapKeyFromValue(L"D&M", availabilityData.mapNumberPrefType)),
 	iDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"Des#_Score", availabilityData.mapNumberScorableType)),
 	iPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"Pref#_Score", availabilityData.mapNumberScorableType)),
 	iMaxNumberOfDaysScoreKey(FindMapKeyFromValue(L"Max#_Score", availabilityData.mapNumberScorableType)),
 	iOnOffOnScoreKey(FindMapKeyFromValue(L"O-O-O_Score", availabilityData.mapNumberScorableType)),
 	iAlertBeforeGreyDayScoreKey(FindMapKeyFromValue(L"Alert Before Grey Day_Score", availabilityData.mapNumberScorableType)),
+	//TODO iAlertOnGreyDayScoreKey(FindMapKeyFromValue(L"Alert On Grey Day_Score", availabilityData.mapNumberScorableType)),
 	iDinnerAndMovie1stHalfScoreKey(FindMapKeyFromValue(L"D&M_Score", availabilityData.mapNumberScorableType)),
 	i2SOFSScoreKey(FindMapKeyFromValue(L"2-SOFs_Score", availabilityData.mapNumberScorableType)),
 	i2SupersScoreKey(FindMapKeyFromValue(L"2-Supers_Score", availabilityData.mapNumberScorableType)),
@@ -35,14 +37,15 @@ ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData 
 	iPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iPreferedNumberOfDaysInRowScoreKey)->second),
 	iMaxNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iMaxNumberOfDaysScoreKey)->second),
 	iOnOffOn_Score(availabilityData.mapScorableNumToScore.find(iOnOffOnScoreKey)->second),
-	iAlertBeforeDinnerAndMovie_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
+	iAlertBeforeGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
+	iDinnerAndMovie1stHalf_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovie1stHalfScoreKey)->second),
 	i2SOFs_Score(availabilityData.mapScorableNumToScore.find(i2SOFSScoreKey)->second),
 	i2Supers_Score(availabilityData.mapScorableNumToScore.find(i2SupersScoreKey)->second),
-	iScheduledOnDesiredDayScore(availabilityData.mapScorableNumToScore.find(iScheduledOnDesiredDayScoreKey)->second),
-	iScheduledOnUnDesiredDayScore(availabilityData.mapScorableNumToScore.find(iScheduledOnUnDesiredDayScoreKey)->second),
+	iScheduledOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnDesiredDayScoreKey)->second),
+	iScheduledOnUnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnUnDesiredDayScoreKey)->second),
 	iDinnerAndMovieOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovieOnDesiredDayScoreKey)->second),
 	iDifferenceFromBucket_Score(availabilityData.mapScorableNumToScore.find(iBucketScheduledDaysDifferenceScoreKey)->second),
-	iDSGSceduledOnAvailableDay_Score(availabilityData.mapScorableNumToScore.find(iDSGScheduledOnDesiredDayScoreKey)->second),
+	iDSGScheduledOnAvailableDay_Score(availabilityData.mapScorableNumToScore.find(iDSGScheduledOnDesiredDayScoreKey)->second),
 	iTooManyGreyDays_Score(availabilityData.mapScorableNumToScore.find(iBucketTooManyGreyDayScoreKey)->second),
 	iPositionSwap_Score(availabilityData.mapScorableNumToScore.find(iPositionSwapScoreKey)->second),
 	iScheduledWithDesiredWingman_Score(availabilityData.mapScorableNumToScore.find(iScheduledWithDesiredWingmanScoreKey)->second)
@@ -75,9 +78,9 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.PLEASE_NO ||
 					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.UNAVAILABLE ||
 					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.CT_FLY_DAY;
-				iDinnerAndMovie += scheduleData.iNumberOfSubPeriods[i] > 1; //increment D&M count
+				iDinnerAndMovie += scheduleData.iNumberOfSubPeriods[j] > 1; //increment D&M count
 				iAlertCount[i] +=  
-					(scheduleData.iNumberOfSubPeriods[i] > 1 && 
+					(scheduleData.iNumberOfSubPeriods[j] > 1 && 
 					(
 						scheduleToScore[j + iDinnerAndMovie].first == i || //increment alert count on D&M day
 						scheduleToScore[j + iDinnerAndMovie - 1].first == i ||
@@ -85,9 +88,9 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 						scheduleToScore[j + iDinnerAndMovie - 1].second == i
 					)) ||
 					(
-						(scheduleData.iNumberOfSubPeriods[i] <= 1 && //increment alert count on non-D&M day
+						(scheduleData.iNumberOfSubPeriods[j] <= 1 && //increment alert count on non-D&M day
 						scheduleToScore[j + iDinnerAndMovie].first == i) ||
-						(scheduleData.iNumberOfSubPeriods[i] <= 1 &&
+						(scheduleData.iNumberOfSubPeriods[j] <= 1 &&
 						scheduleToScore[j + iDinnerAndMovie].second == i)
 					);
 			}
@@ -96,10 +99,11 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
 		{
 			//difference between requested and scheduled number of days
-			int delta = availabilityData.ppIntPrefArray[i][iDesiredNumberOfDaysKey] - iAlertCount[i];
+			int iDesiredDelta = availabilityData.ppIntPrefArray[i][iDesiredNumberOfDaysKey] - iAlertCount[i];
+			int iBucketDelta = (availabilityData.mapNameNumToBucket.find(i)->second + 1) - iAlertCount[i];
 			//reduce penelty for difference if requested days weere less than bucket requirement adjusted fro leave and TDY
-			delta += availabilityData.ppIntPrefArray[i][iDesiredNumberOfDaysKey] < ((availabilityData.mapNameNumToBucket.find(i)->second+1)/ iDaysAvailable[i]);
-			iscore += std::abs(delta) * iDesNumOfAlertDays_Score;
+			iDesiredDelta += availabilityData.ppIntPrefArray[i][iDesiredNumberOfDaysKey] < ((availabilityData.mapNameNumToBucket.find(i)->second+1)/ iDaysAvailable[i]);
+			iscore += std::abs(iDesiredDelta) * iDesNumOfAlertDays_Score + std::abs(iBucketDelta) * iDifferenceFromBucket_Score;
 		}
 		return iscore;
 	});
@@ -115,7 +119,7 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods-1;j++)
 			{
 				int iDaysInARow = 0;
-				iDinnerAndMovie += scheduleData.iNumberOfSubPeriods[i] > 1; //increment for D&M
+				iDinnerAndMovie += scheduleData.iNumberOfSubPeriods[j] > 1; //increment for D&M
 				iDaysInARow +=
 					(scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
 					(scheduleToScore[j + iDinnerAndMovie + 1].first == i || scheduleToScore[j + iDinnerAndMovie+1].second ==i);
@@ -126,7 +130,7 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 				iscore += std::abs(iTmpValue) * iPrefNumOfAlertDaysInRow_Score; //assigne score based on differece between actual and desired
 				//penalize for exceeding max legal days
 				iscore +=
-					((iDaysInARow == 0 || j + iDinnerAndMovie == scheduleData.iTotalNumberOfSubPeriods) * iPreviouseDaysInARow > MAXDAYS) * iMAXDAYSPenalty;//TODO chnagee this
+					((iDaysInARow == 0 || j + iDinnerAndMovie == scheduleData.iTotalNumberOfSubPeriods) * iPreviouseDaysInARow > MAXDAYS) * iMAXDAYS_Penalty;//TODO chnagee this
 				//penalize for exeeding max prefered days, penelty is prefered days in a row penalty * 2
 				iscore +=
 					((iDaysInARow == 0 || j + iDinnerAndMovie == scheduleData.iTotalNumberOfSubPeriods) * //check for end of consecutive scheduled priods and end of calender
@@ -135,13 +139,11 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 						iPreviouseDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]) * //find difference between max and actual consecutively scheduled periods
 						iMaxNumOfAlertDays_Score; // multiply by appropriate score
 				iPreviouseDaysInARow = iDaysInARow;
-
 			}
 		}
 		return iscore;
 	});
-	//Alert-Before-Gray-Day_Score,Dinner-and-Movie_Score,2-Supers_Score	2-SOFs_Score	Scheduled-On-Desired-Day_Score	Scheduled-On-UnDesired-Day_Score	D&M-On-Desired-Day_Score	Bucket-Scheduled-Difference_Score	Too-Many-Grey-Days_Score	DSG-Scheduled-On-Available-Day_Score
-	//function to score on off on penelty
+	//function to score on-off-on penalty
 	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
 	{
 		int iscore = 0;
@@ -426,12 +428,266 @@ void ScheduleScorer::PopulateScoreFunctions(AvailabilityData &availabilityData, 
 					}
 				}
 			}
-			iscore += -1 * iOnOffOn * iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
+			iscore += iOnOffOn * iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 		}
 		return iscore;
 	});
+	
+	//function to score alert before grey-day
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iAlertsBeforGreyDays = 0;
+			size_t iGreyDayCount = 0;
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods - 1;j++)
+			{
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
+					iDinnerAndMovie++;//increment D&M Count
+				}
+				if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+					availabilityData.ppIntDateDayDayTypeArray[1][j + 1] == availabilityData.GREY_DAY &&
+					(scheduleToScore[j + iDinnerAndMovie + 1].first != i && scheduleToScore[j + iDinnerAndMovie + 1].second != i))
+				{
+					iAlertsBeforGreyDays++;
+				}
+			}
+			iscore += iAlertsBeforGreyDays * iAlertBeforeGreyDay_Score * availabilityData.ppIntPrefArray[i][iAlertBeforeGreyDayPrefKey];//Score Alert before grey dayas
+		}
+		return iscore;
+	});
+	//function to score alert on grey-day
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iGreyDayCount = 0;
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods;j++)
+			{
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
+					iDinnerAndMovie++;//increment D&M Count
+					if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i ||
+						scheduleToScore[j + iDinnerAndMovie-1].first == i || scheduleToScore[j + iDinnerAndMovie-1].second == i) &&
+						availabilityData.ppIntDateDayDayTypeArray[1][j] == availabilityData.GREY_DAY)
+					{
+						iGreyDayCount++;
+					}
+				}
+				else
+				{
+					if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+						availabilityData.ppIntDateDayDayTypeArray[1][j] == availabilityData.GREY_DAY)
+					{
+						iGreyDayCount++;
+					}
+				}
+			}
+			iscore += iGreyDayCount * iAlertOnGreyDay_Score; //TODO * availabilityData.ppIntPrefArray[i][iAlertOnGreyDayPrefKey];//Score Alert on grey days
+		}
+		return iscore;
+	});
+	//function to score Dinner & Movie 1st Half
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iDinnerAndMovie1stHalf = 0;
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods - 1;j++)
+			{
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
+					if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+						(scheduleToScore[j + iDinnerAndMovie + 1].first != i && scheduleToScore[j + iDinnerAndMovie + 1].second != i))
+					{
+						iDinnerAndMovie1stHalf++;
+					}
+					iDinnerAndMovie++;//increment D&M Count
+				}
+				
+			}
+			iscore += iDinnerAndMovie1stHalf * iDinnerAndMovie1stHalf_Score * availabilityData.ppIntPrefArray[i][iDinnerAndMovie1stHalfPrefKey];
+		}
+		return iscore;
+	});
+	//function to score Dinner & Movie on desired & undesired day
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iDesiredDinnerAndMovieCount = 0;////tracks instances of dinner and a movie on desired day
+			size_t iUnDesiredDinnerAndMovieCount = 0;////tracks instances of dinner and a movie on desired day
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods;j++)
+			{
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
 
+					iDinnerAndMovie++;//increment D&M Count
+					if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+						(scheduleToScore[j + iDinnerAndMovie-1].first != i && scheduleToScore[j + iDinnerAndMovie-1].second != i)&&
+						availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.DINNER_AND_MOVIE)
+					{
+						iDesiredDinnerAndMovieCount++;
+					}
+					if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+						(scheduleToScore[j + iDinnerAndMovie - 1].first != i && scheduleToScore[j + iDinnerAndMovie - 1].second != i) &&
+						availabilityData.ppIntAvailabilityTypeArray[i][j] != availabilityData.DINNER_AND_MOVIE)
+					{
+						iUnDesiredDinnerAndMovieCount++;
+					}
+				}
+			}
+			iscore += iDesiredDinnerAndMovieCount * iDinnerAndMovieOnDesiredDay_Score + iUnDesiredDinnerAndMovieCount * iDinnerAndMovieOnDesiredDay_Score + iDinnerAndMovieNotRequested_Penalty;
+		}
+		return iscore;
+	});
+	//function to score scheduled on desired day or undesired day
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iDesiredAlerts = 0;////tracks instances alert on desired day
+			size_t iUnDesiredAlerts = 0;////tracks instances of alert on un-desired day
+			int iDesiredAlertsScore = 0;////tracks instances of alert on desired day score 
+			int iUnDesiredAlertsScore = 0;////tracks instances of alert on un-desired day score
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods;j++)
+			{
+				//Find desired alerts
+				if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.ALERT_PLEASE ||
+					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.ALERT_IS_FINE ||
+					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.DONT_CARE)
+				{
+					if (availabilityData.ppBoolQualArray[i][iDSGKey] == true)
+					{
+						iDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score;
+					}
+					else
+					{
+						iDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnDesiredDay_Score;
+					}
+					iDesiredAlerts++;
+				}
+				//Find un-desired alerts
+				else if ((scheduleToScore[j + iDinnerAndMovie].first == i || scheduleToScore[j + iDinnerAndMovie].second == i) &&
+					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.RATHER_NOT ||
+					availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.PLEASE_NO)
+				{
+					iDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnUnDesiredDay_Score;
+					iUnDesiredAlerts++;
+				}
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
+					iDinnerAndMovie++;//increment D&M Count
+				}
+				iscore += iDesiredAlertsScore - iDesiredAlertsScore;
+			}
+		}
+		return iscore;
+	});
+	//function to score 2 supers or SOFs scheduled at once
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+		size_t i2SupersCount = 0;////tracks instances of dinner and a movie on desired day
+		size_t i2SOFsCount = 0;////tracks instances of dinner and a movie on desired day
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityPeriods;i++)
+		{
+			if (availabilityData.ppBoolQualArray[scheduleToScore[i + iDinnerAndMovie].first][iSOFKey] == true &&
+				availabilityData.ppBoolQualArray[scheduleToScore[i + iDinnerAndMovie].second][iSOFKey] == true)
+			{
+				i2SOFsCount++;
+			}
+			if (availabilityData.ppBoolQualArray[scheduleToScore[i + iDinnerAndMovie].first][iSuperKey] == true &&
+				availabilityData.ppBoolQualArray[scheduleToScore[i + iDinnerAndMovie].second][iSuperKey] == true)
+			{
+				i2SupersCount++;
+			}
+			if (scheduleData.iNumberOfSubPeriods[i] > 1)
+			{
+				iDinnerAndMovie++;//increment D&M Count
+			}
+		}
+		iscore += i2SupersCount * i2Supers_Score + i2SOFsCount * i2SOFs_Score;
+		return iscore;
+	});
+	//function to score position swaps
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+		size_t iSwapCount=0;
+		for (size_t i = 0;i < scheduleData.iTotalNumberOfSubPeriods-1;i++)
+		{
+			if (scheduleToScore[i].first == scheduleToScore[i + 1].second)
+			{
+				iSwapCount++;
+			}
+			if (scheduleToScore[i].second == scheduleToScore[i + 1].first)
+			{
+				iSwapCount++;
+			}
+		}
+		iscore += iSwapCount * iPositionSwap_Score;
+		return iscore;
+	});
+	//Function to score matched desired wingman
+	funcs.push_back([&](std::pair<size_t, size_t>* scheduleToScore) ->size_t
+	{
+		int iscore = 0;
+		for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityDataRows;i++)
+		{
+			size_t iDinnerAndMovie = 0;//tracks instances of dinner and a movie
+			size_t iMatchedWingmanCount = 0;////tracks instances of dinner and a movie on desired day
+			for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods;j++)
+			{
+				if (availabilityData.ppIntWingmanPrefArray[i][j] != -1)
+				{
+					//Find wingman matches
+					if (scheduleToScore[j + iDinnerAndMovie].first == i && scheduleToScore[j + iDinnerAndMovie].second == availabilityData.ppIntWingmanPrefArray[i][j])
+					{
+						iMatchedWingmanCount++;
+					}
+					else if (scheduleToScore[j + iDinnerAndMovie].second == i && scheduleToScore[j + iDinnerAndMovie].first == availabilityData.ppIntWingmanPrefArray[i][j])
+					{
+						iMatchedWingmanCount++;
+					}
+				}
+				if (scheduleData.iNumberOfSubPeriods[j] > 1)
+				{
+					iDinnerAndMovie++;//increment D&M Count
+					if (availabilityData.ppIntWingmanPrefArray[i][j] != -1)
+					{
+						//Find wingman matches
+						if (scheduleToScore[j + iDinnerAndMovie].first == i && scheduleToScore[j + iDinnerAndMovie].second == availabilityData.ppIntWingmanPrefArray[i][j])
+						{
+							iMatchedWingmanCount++;
+						}
+						else if (scheduleToScore[j + iDinnerAndMovie].second == i && scheduleToScore[j + iDinnerAndMovie].first == availabilityData.ppIntWingmanPrefArray[i][j])
+						{
+							iMatchedWingmanCount++;
+						}
+					}
+				}
+			}
+			iscore += iMatchedWingmanCount*iScheduledWithDesiredWingman_Score;
+		}
+		return iscore;
+	});
 }
+
 
 size_t ScheduleScorer::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)
 {

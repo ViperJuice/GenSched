@@ -17,6 +17,7 @@ private:
 	size_t iPopulationSize = 1000;//size of breeding population size
 	size_t iClonedPercentage = 10;//top percent of population that is cloned
 	size_t iMateGuarnateed = 10;//top percent of population that is guarenteed to breed
+	int* iScores = nullptr; //holds schedule scores
 };
 
 

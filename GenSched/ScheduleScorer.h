@@ -24,6 +24,7 @@ private:
 	const size_t iMaxNumberOfDaysKey;
 	const size_t iOnOffOnPrefKey;
 	const size_t iAlertBeforeGreyDayPrefKey;
+	//TODO const size_t iAlertOnGreyDayPrefKey;
 	const size_t iDinnerAndMovie1stHalfPrefKey;
 	const size_t iBrave1QualKey;
 	const size_t iSOFKey;
@@ -35,6 +36,7 @@ private:
 	const size_t iMaxNumberOfDaysScoreKey;
 	const size_t iOnOffOnScoreKey;
 	const size_t iAlertBeforeGreyDayScoreKey;
+	//TODO const size_t iAlertOnGreyDayScoreKey;
 	const size_t iDinnerAndMovie1stHalfScoreKey;
 	const size_t i2SOFSScoreKey;
 	const size_t i2SupersScoreKey;
@@ -48,20 +50,23 @@ private:
 	const size_t iPositionSwapScoreKey;
 	const size_t MAXDAYS = 7;
 
-	const int iMAXDAYSPenalty = -1000;
+	const int iMAXDAYS_Penalty = -1000; //TODO make iMAXDAYSPenalty selectable
+	const int iDinnerAndMovieNotRequested_Penalty = -500; //TODO make iDinnerAndMovieNotRequested selectable
 	const int iDesNumOfAlertDays_Score;
 	const int iPrefNumOfAlertDaysInRow_Score;
 	const int iMaxNumOfAlertDays_Score;
 	const int iOnOffOn_Score;
-	const int iAlertBeforeDinnerAndMovie_Score;
+	const int iAlertBeforeGreyDay_Score;
+	const int iAlertOnGreyDay_Score=0;//TODO Implement this
+	const int iDinnerAndMovie1stHalf_Score;
 	const int i2SOFs_Score;
 	const int i2Supers_Score;
-	const int iScheduledOnDesiredDayScore;
-	const int iScheduledOnUnDesiredDayScore;
+	const int iScheduledOnDesiredDay_Score;
+	const int iScheduledOnUnDesiredDay_Score;
 	const int iDinnerAndMovieOnDesiredDay_Score;
 	const int iDifferenceFromBucket_Score;
 	const int iTooManyGreyDays_Score;
-	const int iDSGSceduledOnAvailableDay_Score;
+	const int iDSGScheduledOnAvailableDay_Score;
 	const int iPositionSwap_Score;
 	const int iScheduledWithDesiredWingman_Score;
 

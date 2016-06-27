@@ -301,15 +301,15 @@ void FileFunctions::buildAvailabilityData()
 	{
 		if (wstrDateDayDayTypeArray[1][i] == L"F")
 		{
-			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::F;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::FLY_DAY;
 		}
 		else if (wstrDateDayDayTypeArray[1][i] == L"W")
 		{
-			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::W;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::NO_FLY_WORK_DAY;
 		}
 		else if (wstrDateDayDayTypeArray[1][i] == L"G")
 		{
-			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::G;
+			availabilityData.ppIntDateDayDayTypeArray[1][i] = AvailabilityData::GREY_DAY;
 		}
 	}
 	for (size_t i = 0;i < numberOfDayColumns; i++)
@@ -384,11 +384,11 @@ void FileFunctions::buildAvailabilityData()
 				});
 
 				size_t foundKey = -1; // You might want to initialise this to a value you know is invalid in your map
-				wstring foundValue = nullptr;
+
 				if (findResult != std::end(availabilityData.mapNumberName))
 				{
 					foundKey = findResult->first;
-					//foundValue = findResult->second;
+
 					availabilityData.ppIntWingmanPrefArray[i][j] = foundKey;
 				}
 			}

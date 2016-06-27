@@ -118,7 +118,7 @@ void EvolutionSchedulingEngine::BuildInitialPopulation(AvailabilityData &availab
 	mt19937 gen(rd());
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		for (size_t j = 0;j < availabilityData.iNumberOfAvailabilityPeriods;j++) 
+		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++) 
 		{
 			uniform_int_distribution<> dist(0,scheduleData.vctVctPairIntPossibleNameCombinations[j].size()-1);
 			ppPairIntSchedulePopulation[i][j] = scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)];
@@ -129,15 +129,15 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 {
 	ScheduleScorer* scheduleScorer = new ScheduleScorer(availabilityData, scheduleData);
 	size_t iNumberOfScoringFunctions = scheduleScorer->getFuncs().size();
-	size_t* iScores = new size_t[iPopulationSize];
+	iScores = new int[iPopulationSize];
 	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		size_t iScore;
+		int iScore;
 		schedScoreFutures[i] = std::async(std::launch::async, [&]()->size_t
 		{
 			std::future<size_t>* scoreFuncFutures = new std::future<size_t>[iNumberOfScoringFunctions];
-			size_t j = 0;//keept track of iterator index
+			size_t j = 0;//keep track of iterator index
 			for (std::function<size_t(std::pair<size_t, size_t>*)> &itr : scheduleScorer->getFuncs())
 			{
 				scoreFuncFutures[j] = std::async(std::launch::async, itr, ppPairIntSchedulePopulation[i]);
@@ -148,6 +148,9 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 				iScore = scoreFuncFutures[j].get();
 			}
 			return iScore;
+			iScores[i] += schedScoreFutures[i].get();
+			wstring paraString = L"Shedule" + std::to_wstring(i) + L" scored. ";
+			OutputDebugString(paraString.c_str());
 		});
 	}
 	for (size_t i = 0;i < iPopulationSize;i++)
