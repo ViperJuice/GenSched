@@ -63,7 +63,25 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 			cout << e->Message->Data();
 		}
 	});
-	t.wait();
+	try 
+	{
+		t.wait();
+	}
+	catch (Platform::Exception^ e)
+	{
+		Platform::String^ msg("Platform Error = ");
+		OutputDebugString(msg->Data());
+	}
+	catch (std::exception e)
+	{
+		Platform::String^ msg("Standard Error = ");
+		OutputDebugString(msg->Data());
+	}
+	catch (...)
+	{
+		Platform::String^ msg("Unkown Error = ");
+		OutputDebugString(msg->Data());
+	}
 	return availabilityData;
 }
 

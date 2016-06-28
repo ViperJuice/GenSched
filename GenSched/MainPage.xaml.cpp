@@ -60,7 +60,14 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 		}
 		catch (Platform::Exception^ e)
 		{
-			cout << e->Message->Data();
+			Platform::String^ msg = "Platform Exception";
+			OutputDebugString(msg->Data());
+			return availabilityData;
+		}
+		catch (...)
+		{
+			Platform::String^ msg = "Unkown  Exception";
+			OutputDebugString(msg->Data());
 			return availabilityData;
 		}
 	}, task_continuation_context::use_arbitrary())

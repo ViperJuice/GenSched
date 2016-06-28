@@ -129,33 +129,96 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 {
 	ScheduleScorer* scheduleScorer = new ScheduleScorer(availabilityData, scheduleData);
 	size_t iNumberOfScoringFunctions = scheduleScorer->getFuncs().size();
-	iScores = new int[iPopulationSize];
+	iScores = new int[iPopulationSize]();
 	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		int iScore;
-		schedScoreFutures[i] = std::async(std::launch::async, [&]()->size_t
+		int iScore=0;
+		std::vector<std::pair<size_t, size_t>> vectScheduleToScore
+		(
+			ppPairIntSchedulePopulation[i],
+			ppPairIntSchedulePopulation[i] + scheduleData.iTotalNumberOfSubPeriods
+		);
+		try
 		{
-			std::future<size_t>* scoreFuncFutures = new std::future<size_t>[iNumberOfScoringFunctions];
-			size_t j = 0;//keep track of iterator index
-			for (std::function<size_t(std::pair<size_t, size_t>*)> &itr : scheduleScorer->getFuncs())
+			schedScoreFutures[i] = std::async(std::launch::async, [&, this](size_t iPopulationIndex, std::vector<std::pair<size_t, size_t>> vectScheduleToScore)->size_t
 			{
-				scoreFuncFutures[j] = std::async(std::launch::async, itr, ppPairIntSchedulePopulation[i]);
-				j++;
-			}
-			for (j=0; j < iNumberOfScoringFunctions; j++)
-			{
-				iScore = scoreFuncFutures[j].get();
-			}
-			return iScore;
-			iScores[i] += schedScoreFutures[i].get();
-			wstring paraString = L"Shedule" + std::to_wstring(i) + L" scored. ";
-			OutputDebugString(paraString.c_str());
-		});
+				std::future<size_t>* scoreFuncFutures = new std::future<size_t>[iNumberOfScoringFunctions];
+				size_t j = 0;//keep track of iterator index
+				for (std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)> &itr : scheduleScorer->getFuncs())
+				{
+					try
+					{
+						scoreFuncFutures[j] = std::async(std::launch::deferred, itr, vectScheduleToScore);
+					}
+					catch (std::future_error const & e)
+					{
+						Platform::String^ msg("Future Error = ");
+
+						OutputDebugString(msg->Data());
+					}
+					catch (std::exception const & e)
+					{
+						Platform::String^ msg("Standard Error = ");
+						OutputDebugString(msg->Data());
+					}
+					catch (...)
+					{
+						Platform::String^ msg = "Unkown Exception";
+						OutputDebugString(msg->Data());
+					}
+					j++;
+				}
+				for (j = 0; j < iNumberOfScoringFunctions; j++)
+				{
+					iScore += scoreFuncFutures[j].get();
+				}
+				wstring paraString = std::to_wstring(iPopulationIndex) + L", ";
+				OutputDebugString(paraString.c_str());
+				return iScore;
+			}, i, vectScheduleToScore);
+		}
+		catch (std::future_error const & e)
+		{
+			Platform::String^ msg("Future Error = ");
+
+			OutputDebugString(msg->Data());
+		}
+		catch (std::exception const & e)
+		{
+			Platform::String^ msg("Standard Error = ");
+			OutputDebugString(msg->Data());
+		}
+		catch (...)
+		{
+			Platform::String^ msg = "Unkown Exception";
+			OutputDebugString(msg->Data());
+		}
 	}
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		iScores[i] += schedScoreFutures[i].get();
+		try {
+			iScores[i] += schedScoreFutures[i].get();
+		}
+		catch (Platform::Exception^ e)
+		{
+			Platform::String^ msg("Platform Error = ");
+			OutputDebugString(msg->Data());
+			
+		}
+		catch (std::exception e)
+		{
+			std::cout << e.what();
+			Platform::String^ msg("Standard Error = ");
+			OutputDebugString(msg->Data());
+			::OutputDebugStringA(e.what());
+
+		}
+		catch (...)
+		{
+			Platform::String^ msg("Unkown Error = ");
+			OutputDebugString(msg->Data());
+		}
 	}
 }
 size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)

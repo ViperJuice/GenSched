@@ -12,11 +12,13 @@ using namespace std;
 class ScheduleScorer sealed
 {
 public:
-	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData);
-	std::vector<std::function<size_t(std::pair<size_t, size_t>*)>> getFuncs();
+	ScheduleScorer(AvailabilityData availabilityData, ScheduleData scheduleData);
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> getFuncs();
 private:
-	std::vector<std::function<size_t(std::pair<size_t, size_t>*)>> funcs;
-	void PopulateScoreFunctions(AvailabilityData &availabilityData, ScheduleData &scheduleData);
+	AvailabilityData availabilityData;
+	ScheduleData scheduleData;
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
+	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);
 	size_t alertCount=0;
 	const size_t iDesiredNumberOfDaysKey;
