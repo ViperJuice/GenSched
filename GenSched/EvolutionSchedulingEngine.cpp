@@ -133,7 +133,6 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		int iScore=0;
 		std::vector<std::pair<size_t, size_t>> vectScheduleToScore
 		(
 			ppPairIntSchedulePopulation[i],
@@ -169,11 +168,12 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 					}
 					j++;
 				}
+				int iScore = 0;
 				for (j = 0; j < iNumberOfScoringFunctions; j++)
 				{
 					iScore += scoreFuncFutures[j].get();
 				}
-				wstring paraString = std::to_wstring(iPopulationIndex) + L", ";
+				wstring paraString = std::to_wstring(iPopulationIndex) + L" " +  std::to_wstring(iScore) + L", ";
 				OutputDebugString(paraString.c_str());
 				return iScore;
 			}, i, vectScheduleToScore);
