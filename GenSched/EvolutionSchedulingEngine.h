@@ -8,10 +8,11 @@ public:
 private:
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild) override;
 	void BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
-	void scoreSchedulePopulation(AvailabilityData & availabilityData, ScheduleData & scheduleData, pair<size_t, size_t>** ppPairIntSchedulePopulation);
+	void scoreSchedulePopulation(AvailabilityData & availabilityData, ScheduleData & scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation);
 	void FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
-	std::pair<size_t, size_t>** ppPairIntSchedulePopulation;
+	//std::pair<size_t, size_t>** ppPairIntSchedulePopulation;
+	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation;
 	std::vector<size_t> topScores;
 	size_t iMutationRate = 3;//mutaion rate integer percentag
 	size_t iPopulationSize = 1000;//size of breeding population size

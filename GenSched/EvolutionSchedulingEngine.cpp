@@ -13,7 +13,8 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 {
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
-	scoreSchedulePopulation(availabilityData, scheduleData, ppPairIntSchedulePopulation);
+	//scoreSchedulePopulation(availabilityData, scheduleData, ppPairIntSchedulePopulation);
+	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 }
 
 void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
@@ -109,10 +110,16 @@ void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabi
 
 void EvolutionSchedulingEngine::BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
 {
-	ppPairIntSchedulePopulation = new pair<size_t, size_t>*[iPopulationSize];
+	//ppPairIntSchedulePopulation = new pair<size_t, size_t>*[iPopulationSize];
+	vctScoreAndSchedulePopulation.reserve(iPopulationSize);
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		ppPairIntSchedulePopulation[i] = new pair<size_t, size_t>[availabilityData.iNumberOfAvailabilityPeriods];
+		//ppPairIntSchedulePopulation[i] = new pair<size_t, size_t>[availabilityData.iNumberOfAvailabilityPeriods];
+		
+		std::pair<int, std::vector<std::pair<size_t, size_t>>> pair;
+		pair.first = 0;//initialize score to zero
+		pair.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
+		vctScoreAndSchedulePopulation.push_back(pair);
 	}
 	random_device rd;
 	mt19937 gen(rd());
@@ -121,11 +128,12 @@ void EvolutionSchedulingEngine::BuildInitialPopulation(AvailabilityData &availab
 		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++) 
 		{
 			uniform_int_distribution<> dist(0,scheduleData.vctVctPairIntPossibleNameCombinations[j].size()-1);
-			ppPairIntSchedulePopulation[i][j] = scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)];
+			//ppPairIntSchedulePopulation[i][j] = scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)];
+			vctScoreAndSchedulePopulation[i].second.push_back(scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)]);
 		}
 	}
 }
-void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, pair<size_t, size_t>** ppPairIntSchedulePopulation)
+void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation)
 {
 	ScheduleScorer* scheduleScorer = new ScheduleScorer(availabilityData, scheduleData);
 	size_t iNumberOfScoringFunctions = scheduleScorer->getFuncs().size();
@@ -133,11 +141,11 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		std::vector<std::pair<size_t, size_t>> vectScheduleToScore
-		(
+		std::vector<std::pair<size_t, size_t>> vectScheduleToScore = vctScoreAndSchedulePopulation[i].second;
+		/*(
 			ppPairIntSchedulePopulation[i],
 			ppPairIntSchedulePopulation[i] + scheduleData.iTotalNumberOfSubPeriods
-		);
+		)*/;
 		try
 		{
 			schedScoreFutures[i] = std::async(std::launch::async, [&, this](size_t iPopulationIndex, std::vector<std::pair<size_t, size_t>> vectScheduleToScore)->size_t
