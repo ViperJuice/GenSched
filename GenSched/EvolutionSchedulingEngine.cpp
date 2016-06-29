@@ -13,8 +13,8 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 {
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
-	//scoreSchedulePopulation(availabilityData, scheduleData, ppPairIntSchedulePopulation);
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
+	SortPopulationByScore();
 }
 
 void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
@@ -107,15 +107,14 @@ void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabi
 		vctPairSubPeriod2NameCombinations.clear();
 	}
 }
-
-void EvolutionSchedulingEngine::BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
+void EvolutionSchedulingEngine::BuildInitialPopulation
+(
+	AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild
+)
 {
-	//ppPairIntSchedulePopulation = new pair<size_t, size_t>*[iPopulationSize];
 	vctScoreAndSchedulePopulation.reserve(iPopulationSize);
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		//ppPairIntSchedulePopulation[i] = new pair<size_t, size_t>[availabilityData.iNumberOfAvailabilityPeriods];
-		
 		std::pair<int, std::vector<std::pair<size_t, size_t>>> pair;
 		pair.first = 0;//initialize score to zero
 		pair.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
@@ -128,24 +127,18 @@ void EvolutionSchedulingEngine::BuildInitialPopulation(AvailabilityData &availab
 		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++) 
 		{
 			uniform_int_distribution<> dist(0,scheduleData.vctVctPairIntPossibleNameCombinations[j].size()-1);
-			//ppPairIntSchedulePopulation[i][j] = scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)];
 			vctScoreAndSchedulePopulation[i].second.push_back(scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)]);
 		}
 	}
 }
-void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation)
+void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation)
 {
 	ScheduleScorer* scheduleScorer = new ScheduleScorer(availabilityData, scheduleData);
 	size_t iNumberOfScoringFunctions = scheduleScorer->getFuncs().size();
-	iScores = new int[iPopulationSize]();
 	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
-		std::vector<std::pair<size_t, size_t>> vectScheduleToScore = vctScoreAndSchedulePopulation[i].second;
-		/*(
-			ppPairIntSchedulePopulation[i],
-			ppPairIntSchedulePopulation[i] + scheduleData.iTotalNumberOfSubPeriods
-		)*/;
+		std::vector<std::pair<size_t, size_t>> vectScheduleToScore = vctScoreAndSchedulePopulation[i].second;;
 		try
 		{
 			schedScoreFutures[i] = std::async(std::launch::async, [&, this](size_t iPopulationIndex, std::vector<std::pair<size_t, size_t>> vectScheduleToScore)->size_t
@@ -206,7 +199,7 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
 		try {
-			iScores[i] += schedScoreFutures[i].get();
+			vctScoreAndSchedulePopulation[i].first += schedScoreFutures[i].get();
 		}
 		catch (Platform::Exception^ e)
 		{
@@ -228,6 +221,20 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 			OutputDebugString(msg->Data());
 		}
 	}
+}
+void EvolutionSchedulingEngine::SortPopulationByScore()
+{
+	std::sort
+	(
+		vctScoreAndSchedulePopulation.begin(),
+		vctScoreAndSchedulePopulation.end(),
+		[&]
+	(
+		const std::pair<int, std::vector<std::pair<size_t, size_t>>>& firstElem,
+		const std::pair<int, std::vector<std::pair<size_t, size_t>>>& secondElem) ->bool
+	{
+		return firstElem.first > secondElem.first;
+	});
 }
 size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)
 {
