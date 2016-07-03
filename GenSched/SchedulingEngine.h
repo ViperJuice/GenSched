@@ -17,9 +17,10 @@ public:
 	virtual ScheduleData BuildSchedule(AvailabilityData availabilityData, size_t iNumberOfSchedulesToBuild);
 
 private:
-	ScheduleData scheduleData;
+
 	virtual ScheduleData BuildScheduleShell(AvailabilityData availabilityData);
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)=0;
-
+protected:
+	ScheduleData scheduleData;
 };
 #endif /* SCHEDULINGENGINE_H_ */

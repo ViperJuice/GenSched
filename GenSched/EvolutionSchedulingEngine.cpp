@@ -15,6 +15,7 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 	SortPopulationByScore();
+	SpawnNewPopulation();
 }
 
 void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
@@ -235,6 +236,42 @@ void EvolutionSchedulingEngine::SortPopulationByScore()
 	{
 		return firstElem.first > secondElem.first;
 	});
+}
+void EvolutionSchedulingEngine::SpawnNewPopulation()
+{
+	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctNewScheduleAndScorePopulation;
+	vctNewScheduleAndScorePopulation.reserve(iPopulationSize);
+	size_t iNewPopulation = 0;//tracks how many new offspring have been created
+	//clone top pergentage of population into next generation
+	for (size_t i = iNewPopulation;iNewPopulation + (iPopulationSize / iClonedPercentage);i++)
+	{
+		vctNewScheduleAndScorePopulation[i] = vctScoreAndSchedulePopulation[i];
+		vctNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		iNewPopulation++;//increment ne population size
+	}
+	//generate random members of new population
+	random_device rd;
+	mt19937 gen(rd());
+	for (size_t i = iNewPopulation;iNewPopulation + (iPopulationSize / iRandomPercentage);i++)
+	{
+		for (size_t j = iNewPopulation;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+		{
+			uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[j].size() - 1);
+			vctNewScheduleAndScorePopulation[i].second.push_back(scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)]);
+		}
+		vctNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		iNewPopulation++;//increment ne population size
+	}
+	//generate new population by cloning
+	for (size_t i = iNewPopulation;iNewPopulation + (iPopulationSize / iClonedPercentage);i++)
+	{
+		random_device rd;
+		mt19937 gen(rd());
+		uniform_int_distribution<> dist(0, iPopulationSize - 1);
+		vctNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		iNewPopulation++;//increment ne population size
+	}
+
 }
 size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)
 {
