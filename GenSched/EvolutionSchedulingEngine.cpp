@@ -19,12 +19,10 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 		SortPopulationByScore();
 		SpawnNewPopulation();
 	}
-	
 }
 
 void EvolutionSchedulingEngine::FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
 {
-	scheduleData.pPairWstrScheduleShell = new pair<wstring, wstring>[scheduleData.iTotalNumberOfSubPeriods];
 	//lookup Brave1 integer key by name
 	size_t iBrave1 = FindMapKeyFromValue(L"Brave1", availabilityData.mapNumberQualType);
 	//Go through each period (i) and build possible name pairs
@@ -138,9 +136,9 @@ void EvolutionSchedulingEngine::BuildInitialPopulation
 }
 void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation)
 {
-	ScheduleScorer* scheduleScorer = new ScheduleScorer(availabilityData, scheduleData);
-	size_t iNumberOfScoringFunctions = scheduleScorer->getFuncs().size();
-	std::future<size_t>* schedScoreFutures = new future<size_t>[iPopulationSize];
+	ScheduleScorer scheduleScorer(availabilityData, scheduleData);
+	size_t iNumberOfScoringFunctions = scheduleScorer.getFuncs().size();
+	std::unique_ptr<std::future<size_t>[]> schedScoreFutures(new future<size_t>[iPopulationSize]);
 	for (size_t i = 0;i < iPopulationSize;i++)
 	{
 		std::vector<std::pair<size_t, size_t>> vectScheduleToScore = vctScoreAndSchedulePopulation[i].second;;
@@ -148,9 +146,9 @@ void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availa
 		{
 			schedScoreFutures[i] = std::async(std::launch::async, [&, this](size_t iPopulationIndex, std::vector<std::pair<size_t, size_t>> vectScheduleToScore)->size_t
 			{
-				std::future<size_t>* scoreFuncFutures = new std::future<size_t>[iNumberOfScoringFunctions];
+				std::unique_ptr<std::future<size_t>[]> scoreFuncFutures(new std::future<size_t>[iNumberOfScoringFunctions]);
 				size_t j = 0;//keep track of iterator index
-				for (std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)> &itr : scheduleScorer->getFuncs())
+				for (std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)> &itr : scheduleScorer.getFuncs())
 				{
 					try
 					{

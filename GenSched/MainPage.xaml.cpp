@@ -56,19 +56,21 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 		{
 			DataReaderFactory* dataReaderFactory = new CsvDataReaderFactory();
 			DataReader* dataReader = dataReaderFactory->create_dataReader();
-			return availabilityData = dataReader->read_data(stream);
+			AvailabilityData availabilityData = dataReader->read_data(stream);
+			delete dataReader;
+			delete dataReaderFactory;
+			return availabilityData;
+
 		}
 		catch (Platform::Exception^ e)
 		{
 			Platform::String^ msg = "Platform Exception";
 			OutputDebugString(msg->Data());
-			return availabilityData;
 		}
 		catch (...)
 		{
 			Platform::String^ msg = "Unkown  Exception";
 			OutputDebugString(msg->Data());
-			return availabilityData;
 		}
 	}, task_continuation_context::use_arbitrary())
 	.then([this](AvailabilityData ad)
@@ -77,6 +79,8 @@ void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 		SchedulingEngineFactory* schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
 		SchedulingEngine* schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
 		scheduleData = schedulingEngine->BuildSchedule(ad, iNumberOfSchedulesToBuild);
+		delete schedulingEngineFactory;
+		delete schedulingEngine;
 	});
 
 }

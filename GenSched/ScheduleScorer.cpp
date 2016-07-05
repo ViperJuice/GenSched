@@ -109,6 +109,8 @@ void ScheduleScorer::PopulateScoreFunctions()
 				iDesiredDelta += availabilityData.ppIntPrefArray[i][iDesiredNumberOfDaysKey] < ((availabilityData.mapNameNumToBucket.find(i)->second + 1) / iDaysAvailable[i]);
 				iscore += std::abs(iDesiredDelta) * iDesNumOfAlertDays_Score + std::abs(iBucketDelta) * iDifferenceFromBucket_Score;
 			}
+			delete iAlertCount;
+			delete iDaysAvailable;
 			return iscore;
 		}
 		catch (std::exception const & e)

@@ -6,7 +6,6 @@ struct ScheduleData
 	std::pair<std::wstring, std::wstring>** wstrSchedules;
 	size_t* iNumberOfSubPeriods; //denotes number of subperiods in any scheduling period. 
 	size_t iTotalNumberOfSubPeriods;//total numner or sub-periods in entire schedule
-	std::pair<std::wstring, std::wstring>* pPairWstrScheduleShell;//schedule template
 	std::vector<std::vector<std::pair<size_t, size_t>>> vctVctPairIntPossibleNameCombinations;//contains all name possible combinations for each sub period
 };
 #endif /* SCHEDULEDATA_H_ */

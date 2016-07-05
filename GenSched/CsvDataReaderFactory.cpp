@@ -9,7 +9,7 @@ CsvDataReaderFactory::CsvDataReaderFactory()
 
 CsvDataReaderFactory::~CsvDataReaderFactory()
 {
-	cout << "CSVFactory Destructor" << endl;
+
 }
 
 CSVDataReader* CsvDataReaderFactory::create_dataReader()
