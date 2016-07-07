@@ -143,8 +143,10 @@
     <ClInclude Include="DataReaderFactory.h" />
     <ClInclude Include="EvolutionSchedulingEngine.h" />
     <ClInclude Include="EvolutionSchedulingEngineFactory.h" />
+    <ClInclude Include="EvoSchedulingProcessData.h" />
     <ClInclude Include="FileFunctions.h" />
     <ClInclude Include="Header.h" />
+    <ClInclude Include="MainSchedulingSingleton.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -191,10 +193,12 @@
     <ClCompile Include="DataReaderFactory.cpp" />
     <ClCompile Include="EvolutionSchedulingEngine.cpp" />
     <ClCompile Include="EvolutionSchedulingEngineFactory.cpp" />
+    <ClCompile Include="EvoSchedulingProcessData.cpp" />
     <ClCompile Include="FileFunctions.cpp" />
     <ClCompile Include="MainPage.xaml.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="MainSchedulingSingleton.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

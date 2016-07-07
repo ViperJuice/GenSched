@@ -28,6 +28,7 @@ FileFunctions::FileFunctions():sPath(""), sFileName(""), bActionCanceled(false)
 
 FileFunctions::~FileFunctions()
 {
+	delete dataReader;
 
 }
 

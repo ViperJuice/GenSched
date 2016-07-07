@@ -8,13 +8,8 @@
 
 using namespace GenSched;
 using namespace std;
-using namespace Platform;
-using namespace concurrency;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
-using namespace Windows::Storage;
-using namespace Windows::Storage::Pickers;
-//using namespace Windows::Storage::Streams;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
@@ -35,52 +30,8 @@ MainPage::MainPage()
 
 void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	auto reader = std::make_shared<Windows::Storage::Streams::DataReader^>(nullptr);
-	FileOpenPicker^ picker = ref new FileOpenPicker();
-	picker->FileTypeFilter->Append(".csv");
-	auto fileTask = create_task(picker->PickSingleFileAsync());
-	fileTask.then([this](StorageFile^ file)
-	{
-		if (file)
-		{
-			return file->OpenAsync(FileAccessMode::Read);
-		}
-		else
-		{
-			throw task_canceled();
-		}
-	})
-	.then([this](Windows::Storage::Streams::IRandomAccessStream^ stream)
-	{
-		try 
-		{
-			DataReaderFactory* dataReaderFactory = new CsvDataReaderFactory();
-			DataReader* dataReader = dataReaderFactory->create_dataReader();
-			AvailabilityData availabilityData = dataReader->read_data(stream);
-			delete dataReader;
-			delete dataReaderFactory;
-			return availabilityData;
-
-		}
-		catch (Platform::Exception^ e)
-		{
-			Platform::String^ msg = "Platform Exception";
-			OutputDebugString(msg->Data());
-		}
-		catch (...)
-		{
-			Platform::String^ msg = "Unkown  Exception";
-			OutputDebugString(msg->Data());
-		}
-	}, task_continuation_context::use_arbitrary())
-	.then([this](AvailabilityData ad)
-	{
-		cout << ad.month.data();
-		SchedulingEngineFactory* schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
-		SchedulingEngine* schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
-		scheduleData = schedulingEngine->BuildSchedule(ad, iNumberOfSchedulesToBuild);
-		delete schedulingEngineFactory;
-		delete schedulingEngine;
-	});
+	MainSchedulingSingleton *mainSchedulingSingleton = MainSchedulingSingleton::Instance();
+	mainSchedulingSingleton->RunSchedulingProcess();
+	
 
 }
