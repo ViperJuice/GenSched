@@ -26,6 +26,8 @@
     <ClCompile Include="SchedulingEngine.cpp" />
     <ClCompile Include="EvolutionSchedulingEngine.cpp" />
     <ClCompile Include="ScheduleScorer.cpp" />
+    <ClCompile Include="MainSchedulingSingleton.cpp" />
+    <ClCompile Include="EvoSchedulingProcessData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -45,6 +47,8 @@
     <ClInclude Include="EvolutionSchedulingEngine.h" />
     <ClInclude Include="ScheduleData.h" />
     <ClInclude Include="ScheduleScorer.h" />
+    <ClInclude Include="MainSchedulingSingleton.h" />
+    <ClInclude Include="EvoSchedulingProcessData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">

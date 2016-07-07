@@ -17,7 +17,9 @@
 #include "ScheduleScorer.h"
 #include "App.xaml.h"
 #include "DataReader.h"
+#include "EvoSchedulingProcessData.h";
 #include "CSVDataReader.h"
+#include "CSVDataReaderFactory.h"
 #include "FileFunctions.h"
 #include "DataReaderFactory.h"
 #include "DataReader.h"
@@ -25,4 +27,4 @@
 #include "EvolutionSchedulingEngine.h"
 #include "SchedulingEngineFactory.h"
 #include "EvolutionSchedulingEngineFactory.h"
-
+#include "MainSchedulingSingleton.h"

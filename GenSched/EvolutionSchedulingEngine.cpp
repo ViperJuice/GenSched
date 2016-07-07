@@ -9,14 +9,57 @@ EvolutionSchedulingEngine::EvolutionSchedulingEngine()
 
 }
 
+EvolutionSchedulingEngine::EvolutionSchedulingEngine(size_t iPopulationSize, size_t iNumberOfGenerationsToRun): iPopulationSize(iPopulationSize), iNumberOfGenerationsToRun(iNumberOfGenerationsToRun)
+{
+}
+
+void EvolutionSchedulingEngine::ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback)
+{
+	EvolutionSchedulingEngine::schedulesUpdateCallback = schedulesUpdateCallback;
+}
+
+void EvolutionSchedulingEngine::SchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback)
+{
+	EvolutionSchedulingEngine::schedulingProcessUpdateCallback = schedulingProcessUpdateCallback;
+}
+
 void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
 {
+	size_t iGenerationNumber = 0;
+std:vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
+	vctSchedulesToReturn.reserve(iNumberOfSchedulesToBuild);
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
-	for (size_t i = 0;i< 10000;i++)
+	for (size_t i = 0;i< iNumberOfGenerationsToRun;i++)
 	{
 		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 		SortPopulationByScore();
+		iGenerationNumber++;
+		std::pair<wstring, wstring> pairGeneToAdd;
+		std::pair<int, std::vector<pair<wstring, wstring>>> pairScoreAndGeneToAdd;
+		pairScoreAndGeneToAdd.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
+		for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+		{
+			pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
+			for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
+			{
+				pairGeneToAdd.first = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].first)->second;
+				pairGeneToAdd.second = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].second)->second;
+				pairScoreAndGeneToAdd.second.push_back(pairGeneToAdd);
+			}
+			vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
+		}
+		schedulesUpdateCallback(vctSchedulesToReturn);
+		int iAverageScore = 0;
+		std::pair <size_t, std::pair<int, int>> pairToReturn;
+		pairToReturn.first = iGenerationNumber;
+		pairToReturn.second.first = vctScoreAndSchedulePopulation[0].first;
+		for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+		{
+			iAverageScore += vctScoreAndSchedulePopulation[j].first;
+		}
+		pairToReturn.second.second = iAverageScore / iNumberOfSchedulesToBuild;
+		schedulingProcessUpdateCallback(pairToReturn);
 		SpawnNewPopulation();
 	}
 }

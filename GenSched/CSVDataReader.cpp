@@ -26,8 +26,8 @@ CSVDataReader::~CSVDataReader() {
 	// TODO Auto-generated destructor stub
 }
 AvailabilityData CSVDataReader::read_data(Windows::Storage::Streams::IRandomAccessStream^ stream){
-	FileFunctions* fileFunctions = new FileFunctions();
-	availabilityData = fileFunctions->getCSVData(stream);
+	FileFunctions fileFunctions;
+	availabilityData = fileFunctions.getCSVData(stream);
 	return availabilityData;
 }
 
