@@ -12,7 +12,10 @@ using namespace Windows::Storage::Pickers;
 MainSchedulingSingleton::MainSchedulingSingleton() 
 {
 }
-
+MainSchedulingSingleton::~MainSchedulingSingleton()
+{
+	delete evoSchedulingProcessData;
+}
 MainSchedulingSingleton* MainSchedulingSingleton::_instance = 0;
 
 MainSchedulingSingleton* MainSchedulingSingleton::Instance() {
@@ -63,7 +66,7 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 	}, task_continuation_context::use_arbitrary())
 		.then([this](AvailabilityData availabilityData)
 	{
-		cout << availabilityData.month.data();
+		EvoSchedulingProcessData *evoSchedulingProcessData = new EvoSchedulingProcessData();
 		unique_ptr<SchedulingEngineFactory> schedulingEngineFactory(new EvolutionSchedulingEngineFactory());
 		unique_ptr<SchedulingEngine> schedulingEngine(schedulingEngineFactory->create_schedulingEngine());
 		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
