@@ -3,6 +3,7 @@
 
 SchedulingEngine::~SchedulingEngine()
 {
+
 }
 
 ScheduleData SchedulingEngine::BuildSchedule(AvailabilityData availabilityData, size_t iNumberOfSchedulesToBuild)
