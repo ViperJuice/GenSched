@@ -16,7 +16,7 @@ struct AvailabilityData
 	enum availabilityType
 		{UNAVAILABLE = -6, CT_FLY_DAY = -5, LEAVE = -4, TDY = -3, PLEASE_NO = -2, RATHER_NOT = -1, DONT_CARE = 1, ALERT_IS_FINE = 2,
 		ALERT_PLEASE = 3, DINNER_AND_MOVIE = 4};
-	enum preferenceStrength {HATE_IT = -2, DONT_LIKE_IT = -1, LIKE_IT = 1, LOVE_IT = 2};
+	enum preferenceStrength {HATE_IT = -2, DONT_LIKE_IT = -1, LIKE_IT = 2, LOVE_IT = 3};
 	int** ppIntDateDayDayTypeArray;
 	int** ppIntAvailabilityTypeArray;
 	int** ppIntWingmanPrefArray;

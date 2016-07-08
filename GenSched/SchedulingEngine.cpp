@@ -21,6 +21,7 @@ ScheduleData SchedulingEngine::BuildScheduleShell(AvailabilityData availabilityD
 	//Build array of correct size to hold schedule
 	scheduleData.iTotalNumberOfSubPeriods = availabilityData.iNumberOfAvailabilityPeriods;
 	scheduleData.iNumberOfSubPeriods = new size_t[availabilityData.iNumberOfAvailabilityPeriods];
+	scheduleData.iNumberOfAvailabilityPeriods = availabilityData.iNumberOfAvailabilityPeriods;
 	for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityPeriods;i++)
 	{
 		scheduleData.iNumberOfSubPeriods[i] = 1;//Initialize iNumberOfSubPeriods to 1

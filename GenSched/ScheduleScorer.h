@@ -53,7 +53,7 @@ private:
 	const size_t MAXDAYS = 7;
 
 	const int iMAXDAYS_Penalty = -1000; //TODO make iMAXDAYSPenalty selectable
-	const int iDinnerAndMovieNotRequested_Penalty = -500; //TODO make iDinnerAndMovieNotRequested selectable
+	const int iDinnerAndMovieNotRequested_Penalty = -200; //TODO make iDinnerAndMovieNotRequested selectable
 	const int iDesNumOfAlertDays_Score;
 	const int iPrefNumOfAlertDaysInRow_Score;
 	const int iMaxNumOfAlertDays_Score;

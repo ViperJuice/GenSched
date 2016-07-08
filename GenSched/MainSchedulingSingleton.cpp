@@ -66,9 +66,17 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 	}, task_continuation_context::use_arbitrary())
 		.then([this](AvailabilityData availabilityData)
 	{
-		EvoSchedulingProcessData *evoSchedulingProcessData = new EvoSchedulingProcessData();
+		EvoSchedulingProcessData* evoSchedulingProcessData = new EvoSchedulingProcessData();
 		unique_ptr<SchedulingEngineFactory> schedulingEngineFactory(new EvolutionSchedulingEngineFactory());
 		unique_ptr<SchedulingEngine> schedulingEngine(schedulingEngineFactory->create_schedulingEngine());
+		schedulingEngine->ConnectScheduleUpdateCallback([&evoSchedulingProcessData](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
+		{
+			return evoSchedulingProcessData->SchedulesUpdateCallback(schedulesUpdateCallback);
+		});
+		schedulingEngine->ConnectSchedulingProcessUpdateCallback([&evoSchedulingProcessData](std::pair<size_t, std::pair<int, int>> schedulingProcessUpdateCallback)
+		{
+			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
+		});
 		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
 	});
 
