@@ -31,7 +31,7 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 	SortPopulationByScore();
 	PassSchedulingProcessUpdate(availabilityData, 0);//Pass info back to main process
-	for (size_t i = 1;i< iNumberOfGenerationsToRun && !bStopTheEngine;i++)
+	for (size_t i = 1;i < 2 || bStopTheEngine;i++)
 	{
 		SpawnNewPopulation();
 		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
@@ -60,12 +60,20 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	{
 		for (size_t k=0;k < vctSchedulesToReturn.size();k++)
 		{
-			std::ofstream outFile((availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + L"AlertScheduleOut.csv"));
+			std::ofstream outFile((availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(k) + L"_" + L"AlertScheduleOut.csv"));
+			std::vector<std::pair<wstring, wstring>>::iterator pairItr;
 
-			copy(vctSchedulesToReturn[k].second.begin()->first.c_str(), vctSchedulesToReturn[0].second.end()->first.c_str(), ostream_iterator<float>(outFile, ", "));
+			for (pairItr = vctSchedulesToReturn[k].second.begin(); pairItr!=vctSchedulesToReturn[k].second.end(); pairItr++)
+			{
+				outFile << pairItr->first.c_str();
+				outFile << ',' ;
+			}
 			outFile << L"\r\n";
-			copy(vctSchedulesToReturn[k].second.begin()->second.c_str(), vctSchedulesToReturn[0].second.end()->second.c_str(), ostream_iterator<float>(outFile, ", "));
-
+			for (pairItr = vctSchedulesToReturn[k].second.begin(); pairItr != vctSchedulesToReturn[k].second.end(); pairItr++)
+			{
+				outFile << pairItr->second.c_str();
+				outFile << ',';
+			}
 		}
 	}
 }

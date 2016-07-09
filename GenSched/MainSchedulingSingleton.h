@@ -11,6 +11,7 @@ protected:
 private:
 	static MainSchedulingSingleton* _instance;
 	size_t iNumberOfSchedulesToBuild = 10;
+	SchedulingEngineFactory* schedulingEngineFactory;
 	SchedulingEngine* schedulingEngine;
 	pair<wstring, wstring>** wstrSchedules;
 	EvoSchedulingProcessData* evoSchedulingProcessData;
