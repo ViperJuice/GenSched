@@ -31,12 +31,8 @@ MainPage::MainPage()
 
 void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	auto t= create_task([&, this]()
-	{
-		mainSchedulingSingleton = MainSchedulingSingleton::Instance();
-		mainSchedulingSingleton->RunSchedulingProcess();
-	});
-	t.get();
+	mainSchedulingSingleton = MainSchedulingSingleton::Instance();
+	mainSchedulingSingleton->RunSchedulingProcess();
 }
 
 void GenSched::MainPage::button_CompletBuild_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)

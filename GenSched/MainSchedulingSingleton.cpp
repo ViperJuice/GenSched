@@ -15,6 +15,7 @@ MainSchedulingSingleton::MainSchedulingSingleton()
 MainSchedulingSingleton::~MainSchedulingSingleton()
 {
 	delete schedulingEngine;
+	delete schedulingEngineFactory;
 	delete evoSchedulingProcessData;
 }
 MainSchedulingSingleton* MainSchedulingSingleton::_instance = 0;
@@ -67,14 +68,14 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 	}, task_continuation_context::use_arbitrary())
 		.then([this](AvailabilityData availabilityData)
 	{
-		EvoSchedulingProcessData* evoSchedulingProcessData = new EvoSchedulingProcessData();
-		unique_ptr<SchedulingEngineFactory> schedulingEngineFactory(new EvolutionSchedulingEngineFactory());
+		evoSchedulingProcessData = new EvoSchedulingProcessData();
+		schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
 		schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
-		schedulingEngine->ConnectScheduleUpdateCallback([&evoSchedulingProcessData](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
+		schedulingEngine->ConnectScheduleUpdateCallback([&](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
 		{
 			return evoSchedulingProcessData->SchedulesUpdateCallback(schedulesUpdateCallback);
 		});
-		schedulingEngine->ConnectSchedulingProcessUpdateCallback([&evoSchedulingProcessData](std::pair<size_t, std::pair<int, int>> schedulingProcessUpdateCallback)
+		schedulingEngine->ConnectSchedulingProcessUpdateCallback([&](std::pair<size_t, std::pair<int, int>> schedulingProcessUpdateCallback)
 		{
 			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
 		});
