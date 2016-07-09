@@ -8,6 +8,7 @@
 
 using namespace GenSched;
 using namespace std;
+using namespace concurrency;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Enumeration;
@@ -30,8 +31,15 @@ MainPage::MainPage()
 
 void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	MainSchedulingSingleton *mainSchedulingSingleton = MainSchedulingSingleton::Instance();
-	mainSchedulingSingleton->RunSchedulingProcess();
-	
+	auto t= create_task([&, this]()
+	{
+		mainSchedulingSingleton = MainSchedulingSingleton::Instance();
+		mainSchedulingSingleton->RunSchedulingProcess();
+	});
+	t.get();
+}
 
+void GenSched::MainPage::button_CompletBuild_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	mainSchedulingSingleton->ForceCompleteSchedulingProcess();
 }

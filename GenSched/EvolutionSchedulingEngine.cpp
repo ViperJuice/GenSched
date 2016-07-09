@@ -31,12 +31,42 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 	SortPopulationByScore();
 	PassSchedulingProcessUpdate(availabilityData, 0);//Pass info back to main process
-	for (size_t i = 1;i< iNumberOfGenerationsToRun;i++)
+	for (size_t i = 1;i< iNumberOfGenerationsToRun && !bStopTheEngine;i++)
 	{
 		SpawnNewPopulation();
 		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 		SortPopulationByScore();
 		PassSchedulingProcessUpdate(availabilityData, i);//Pass info back to main process
+	}
+	//TODO Move this to FileFunctions
+	std:vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
+	vctSchedulesToReturn.reserve(iNumberOfSchedulesToBuild);
+	std::pair<wstring, wstring> pairGeneToAdd;
+	std::pair<int, std::vector<pair<wstring, wstring>>> pairScoreAndGeneToAdd;
+	pairScoreAndGeneToAdd.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
+	int iNumberOfSchedulesToBuildUnsigned = iNumberOfSchedulesToBuild;
+	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+	{
+		pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
+		for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
+		{
+			pairGeneToAdd.first = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].first)->second;
+			pairGeneToAdd.second = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].second)->second;
+			pairScoreAndGeneToAdd.second.push_back(pairGeneToAdd);
+		}
+		vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
+	}
+	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+	{
+		for (size_t k=0;k < vctSchedulesToReturn.size();k++)
+		{
+			std::ofstream outFile((availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + L"AlertScheduleOut.csv"));
+
+			copy(vctSchedulesToReturn[k].second.begin()->first.c_str(), vctSchedulesToReturn[0].second.end()->first.c_str(), ostream_iterator<float>(outFile, ", "));
+			outFile << L"\r\n";
+			copy(vctSchedulesToReturn[k].second.begin()->second.c_str(), vctSchedulesToReturn[0].second.end()->second.c_str(), ostream_iterator<float>(outFile, ", "));
+
+		}
 	}
 }
 
@@ -654,6 +684,7 @@ void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &av
 	schedulingProcessUpdateCallback(pairToReturn);
 	//End callbacks and updates to main process
 }
+
 size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)
 {
 	const wstring nameToFind = wstrLookUp;

@@ -18,7 +18,10 @@ namespace GenSched
 		MainPage();
 
 	private:
+		MainSchedulingSingleton* mainSchedulingSingleton;
+
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 
+		void button_CompletBuild_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

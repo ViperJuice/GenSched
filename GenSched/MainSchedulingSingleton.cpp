@@ -14,6 +14,7 @@ MainSchedulingSingleton::MainSchedulingSingleton()
 }
 MainSchedulingSingleton::~MainSchedulingSingleton()
 {
+	delete schedulingEngine;
 	delete evoSchedulingProcessData;
 }
 MainSchedulingSingleton* MainSchedulingSingleton::_instance = 0;
@@ -32,7 +33,7 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 	FileOpenPicker^ picker = ref new FileOpenPicker();
 	picker->FileTypeFilter->Append(".csv");
 	auto fileTask = create_task(picker->PickSingleFileAsync());
-	fileTask.then([this](StorageFile^ file)
+	fileTask.then([&, this](StorageFile^ file)
 	{
 		if (file)
 		{
@@ -68,7 +69,7 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 	{
 		EvoSchedulingProcessData* evoSchedulingProcessData = new EvoSchedulingProcessData();
 		unique_ptr<SchedulingEngineFactory> schedulingEngineFactory(new EvolutionSchedulingEngineFactory());
-		unique_ptr<SchedulingEngine> schedulingEngine(schedulingEngineFactory->create_schedulingEngine());
+		schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
 		schedulingEngine->ConnectScheduleUpdateCallback([&evoSchedulingProcessData](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
 		{
 			return evoSchedulingProcessData->SchedulesUpdateCallback(schedulesUpdateCallback);
@@ -80,5 +81,10 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
 	});
 
+}
+
+void MainSchedulingSingleton::ForceCompleteSchedulingProcess()
+{
+	schedulingEngine->SetStopTheEngine(true);
 }
 

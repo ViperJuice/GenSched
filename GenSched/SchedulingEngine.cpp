@@ -16,6 +16,11 @@ ScheduleData SchedulingEngine::BuildSchedule(AvailabilityData availabilityData, 
 	return scheduleData;
 }
 
+void SchedulingEngine::SetStopTheEngine(const bool stopTheEngine)
+{
+	SchedulingEngine::bStopTheEngine = stopTheEngine;
+}
+
 ScheduleData SchedulingEngine::BuildScheduleShell(AvailabilityData availabilityData)
 {
 	//Build array of correct size to hold schedule

@@ -8,6 +8,7 @@ public:
 	EvolutionSchedulingEngine(size_t iPopulationSize, size_t iNumberOfGenerationsToRun);
 	void ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback);
 	void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback);
+
 private:
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild) override;
 	void BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
@@ -16,6 +17,7 @@ private:
 	void SortPopulationByScore();
 	void SpawnNewPopulation();
 	void PassSchedulingProcessUpdate(AvailabilityData &availabilityData, size_t iGenerationNumber);
+
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);

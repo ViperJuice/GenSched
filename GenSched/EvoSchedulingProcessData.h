@@ -19,6 +19,7 @@ private:
 	void SetSchedules(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedules);
 	size_t iSchedulesToCreate = 10;
 	size_t iGenerationsToRun = 1000;
+	
 
 };
 

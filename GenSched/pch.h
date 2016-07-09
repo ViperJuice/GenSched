@@ -8,6 +8,7 @@
 #include <collection.h>
 #include <ppltasks.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <windows.h>
 #include <random>

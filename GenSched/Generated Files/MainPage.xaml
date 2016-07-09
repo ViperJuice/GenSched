@@ -11,6 +11,7 @@
         <StackPanel HorizontalAlignment="Left" Height="630" VerticalAlignment="Top" Width="360">
             <TextBlock x:ConnectionId='2' x:Name="textBlock" TextWrapping="Wrap" Text="GenSched"/>
             <Button x:ConnectionId='3' x:Name="button_ImportData" Content="Import Data" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                     />
+            <Button x:ConnectionId='4' x:Name="button_CompletBuild" Content="Complete Bulid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                                  />
         </StackPanel>
     </Grid>
 </Page>
