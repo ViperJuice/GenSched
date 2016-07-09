@@ -43,3 +43,9 @@ void GenSched::MainPage::button_CompletBuild_Click(Platform::Object^ sender, Win
 {
 	mainSchedulingSingleton->ForceCompleteSchedulingProcess();
 }
+
+void GenSched::MainPage::App_Suspending(Object ^ sender, SuspendingEventArgs ^ e)
+{
+	auto deferral = e->SuspendingOperation->GetDeferral();
+}
+
