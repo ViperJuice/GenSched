@@ -3,7 +3,8 @@ class MainSchedulingSingleton
 {
 public:
 	static MainSchedulingSingleton* Instance();
-	void RunSchedulingProcess();
+	void ImportSchedulingData();
+	void BuildSchedules();
 	void ForceCompleteSchedulingProcess();
 protected:
 	MainSchedulingSingleton();
@@ -16,7 +17,7 @@ private:
 	pair<wstring, wstring>** wstrSchedules;
 	EvoSchedulingProcessData* evoSchedulingProcessData;
 	ScheduleData scheduleData;
-	AvailabilityData availabilityData;
+	AvailabilityData* availabilityData;
 	Windows::Storage::Streams::DataReader^ reader;
 
 };

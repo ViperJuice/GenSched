@@ -11,7 +11,8 @@
         <StackPanel HorizontalAlignment="Left" Height="630" VerticalAlignment="Top" Width="360">
             <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="GenSched"/>
             <Button x:Name="button_ImportData" Content="Import Data" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="Button_Click"/>
-            <Button x:Name="button_CompletBuild" Content="Complete Bulid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="button_CompletBuild_Click"/>
+            <Button x:Name="button_BuildSchedules" Content="Build Schedules" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="button_BuildSchedules_Click"/>
+            <Button x:Name="button_CompletBuild" Content="Complete Build" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="button_CompletBuild_Click"/>
         </StackPanel>
     </Grid>
 </Page>

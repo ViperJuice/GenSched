@@ -17,6 +17,7 @@ MainSchedulingSingleton::~MainSchedulingSingleton()
 	delete schedulingEngine;
 	delete schedulingEngineFactory;
 	delete evoSchedulingProcessData;
+	delete availabilityData;
 }
 MainSchedulingSingleton* MainSchedulingSingleton::_instance = 0;
 
@@ -28,7 +29,7 @@ MainSchedulingSingleton* MainSchedulingSingleton::Instance() {
 }
 
 //starts and runs the scheduling program
-void MainSchedulingSingleton::RunSchedulingProcess()
+void MainSchedulingSingleton::ImportSchedulingData()
 {
 	auto reader = std::make_shared<Windows::Storage::Streams::DataReader^>(nullptr);
 	FileOpenPicker^ picker = ref new FileOpenPicker();
@@ -51,7 +52,8 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 		{
 			unique_ptr<DataReaderFactory> dataReaderFactory(new CsvDataReaderFactory());
 			unique_ptr<DataReader> dataReader(dataReaderFactory->create_dataReader());
-			AvailabilityData availabilityData = dataReader->read_data(stream);
+			availabilityData = new AvailabilityData();
+			*availabilityData = dataReader->read_data(stream);
 			return availabilityData;
 
 		}
@@ -65,8 +67,8 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 			Platform::String^ msg = "Unkown  Exception";
 			OutputDebugString(msg->Data());
 		}
-	}, task_continuation_context::use_arbitrary())
-		.then([this](AvailabilityData availabilityData)
+	}, task_continuation_context::use_arbitrary());
+		/*.then([this](AvailabilityData availabilityData)
 	{
 		evoSchedulingProcessData = new EvoSchedulingProcessData();
 		schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
@@ -79,9 +81,30 @@ void MainSchedulingSingleton::RunSchedulingProcess()
 		{
 			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
 		});
-		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
-	});
 
+		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
+	})*/;
+
+}
+
+void MainSchedulingSingleton::BuildSchedules()
+{
+	auto buildScheduleTask = create_task([&, this]() 
+	{
+		evoSchedulingProcessData = new EvoSchedulingProcessData();
+		schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
+		schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
+		schedulingEngine->ConnectScheduleUpdateCallback([&](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
+		{
+			return evoSchedulingProcessData->SchedulesUpdateCallback(schedulesUpdateCallback);
+		});
+		schedulingEngine->ConnectSchedulingProcessUpdateCallback([&](std::pair<size_t, std::pair<int, int>> schedulingProcessUpdateCallback)
+		{
+			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
+		});
+
+		scheduleData = schedulingEngine->BuildSchedule(*availabilityData, iNumberOfSchedulesToBuild);
+	});
 }
 
 void MainSchedulingSingleton::ForceCompleteSchedulingProcess()

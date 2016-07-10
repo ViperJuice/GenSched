@@ -31,7 +31,7 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
 	SortPopulationByScore();
 	PassSchedulingProcessUpdate(availabilityData, 0);//Pass info back to main process
-	for (size_t i = 1;i < 2 || bStopTheEngine;i++)
+	for (size_t i = 1;i < iNumberOfGenerationsToRun && !bStopTheEngine;i++)
 	{
 		SpawnNewPopulation();
 		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
@@ -60,7 +60,7 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	{
 		for (size_t k=0;k < vctSchedulesToReturn.size();k++)
 		{
-			std::ofstream outFile((availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(k) + L"_" + L"AlertScheduleOut.csv"));
+			std::ofstream outFile((L"../" + availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(k) + L"_" + L"AlertScheduleOut.csv"));
 			std::vector<std::pair<wstring, wstring>>::iterator pairItr;
 
 			for (pairItr = vctSchedulesToReturn[k].second.begin(); pairItr!=vctSchedulesToReturn[k].second.end(); pairItr++)

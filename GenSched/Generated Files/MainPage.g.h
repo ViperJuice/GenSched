@@ -37,6 +37,7 @@ namespace GenSched
         private: ::Windows::UI::Xaml::Controls::Grid^ grid_Main;
         private: ::Windows::UI::Xaml::Controls::TextBlock^ textBlock;
         private: ::Windows::UI::Xaml::Controls::Button^ button_ImportData;
+        private: ::Windows::UI::Xaml::Controls::Button^ button_BuildSchedules;
         private: ::Windows::UI::Xaml::Controls::Button^ button_CompletBuild;
     };
 }
