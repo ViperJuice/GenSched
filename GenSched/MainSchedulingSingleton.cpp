@@ -68,23 +68,6 @@ void MainSchedulingSingleton::ImportSchedulingData()
 			OutputDebugString(msg->Data());
 		}
 	}, task_continuation_context::use_arbitrary());
-		/*.then([this](AvailabilityData availabilityData)
-	{
-		evoSchedulingProcessData = new EvoSchedulingProcessData();
-		schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
-		schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
-		schedulingEngine->ConnectScheduleUpdateCallback([&](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
-		{
-			return evoSchedulingProcessData->SchedulesUpdateCallback(schedulesUpdateCallback);
-		});
-		schedulingEngine->ConnectSchedulingProcessUpdateCallback([&](std::pair<size_t, std::pair<int, int>> schedulingProcessUpdateCallback)
-		{
-			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
-		});
-
-		scheduleData = schedulingEngine->BuildSchedule(availabilityData, iNumberOfSchedulesToBuild);
-	})*/;
-
 }
 
 void MainSchedulingSingleton::BuildSchedules()

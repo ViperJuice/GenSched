@@ -90,7 +90,7 @@ AvailabilityData FileFunctions::getCSVData(Windows::Storage::Streams::IRandomAcc
 void FileFunctions::parseInputString()
 {
 	//Get iterator to string if .csv data
-	const char16* ptrInputData = strInputData->Begin();
+	const wchar_t* ptrInputData = strInputData->Begin();
 	//i=column index, j = row index
 	size_t i = 0, j = 0;
 	//vector to hold row of availability matrix
@@ -207,12 +207,14 @@ void FileFunctions::buildAvailabilityData()
 		}
 	}
 
-	const size_t numberOfDayColumns = (LastDayOfMonthColumn - FirstDayColumn) + 1;
-	const size_t numberOfWingmanColumns = (LastPairRequestColumn - FirstPairRequestColumn) + 1;
+	const size_t numberOfDayColumns = (LastDayOfMonthColumn - FirstDayOfMonthColumn) + 1;//TODO make more generic than days of month
+	const size_t numberOfWingmanColumns = (LastDayOfMonthColumn - FirstDayOfMonthColumn) + 1;
 	const size_t numberOfIDColumns = 1;
 	const size_t numberOfQualColumns = (LastQualColumn - FirstQualColumn) + 1;
 	const size_t numberOfPrefColumns = (LastPreferenceColumn - FirstPreferenceColumn) + 1;
 	const size_t numberOfDataRows = (LastDataRow - FirstDataRow) + 1;
+	const size_t numberOfLastMonthDays = FirstDayOfMonthColumn - FirstDayColumn;
+	const size_t numberOfNextMonthDays = (FirstPairRequestColumn - LastDayOfMonthColumn) - 1;
 
 	std::wstring** wstrDateDayDayTypeArray = nullptr;
 	std::wstring** wstrAvailabilityTypeArray = nullptr;
@@ -233,9 +235,9 @@ void FileFunctions::buildAvailabilityData()
 		wstrVct.clear();
 	}
 
-	wstrDateDayDayTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayColumn - 1, LastDayOfMonthColumn - 1, 0, 2);
-	wstrAvailabilityTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayColumn - 1, LastDayOfMonthColumn - 1, FirstDataRow - 1, LastDataRow - 1);
-	wstrWingmanPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPairRequestColumn - 1, LastPairRequestColumn - 1, FirstDataRow - 1, LastDataRow - 1);
+	wstrDateDayDayTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayOfMonthColumn - 1, LastDayOfMonthColumn - 1, 0, 2);
+	wstrAvailabilityTypeArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstDayOfMonthColumn - 1, LastDayOfMonthColumn - 1, FirstDataRow - 1, LastDataRow - 1);//TODO make more generic than first day of month;
+	wstrWingmanPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPairRequestColumn + numberOfLastMonthDays - 1, (LastPairRequestColumn - numberOfNextMonthDays) - 1, FirstDataRow - 1, LastDataRow - 1);//TODO make more generic than first day of month;
 	wstrQualArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstQualColumn - 1, LastQualColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 	wstrPrefArray = vectorParser2D<std::wstring>(ws2DVectorInputData, FirstPreferenceColumn - 1, LastPreferenceColumn - 1, FirstDataRow - 1, LastDataRow - 1);
 
