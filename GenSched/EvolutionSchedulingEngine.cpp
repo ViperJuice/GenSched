@@ -48,6 +48,7 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
 	{
 		pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
+		pairScoreAndGeneToAdd.second.clear();
 		for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
 		{
 			pairGeneToAdd.first = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].first)->second;
@@ -56,25 +57,57 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 		}
 		vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
 	}
-	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
-	{
-		for (size_t k=0;k < vctSchedulesToReturn.size();k++)
-		{
-			std::ofstream outFile((L"../" + availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(k) + L"_" + L"AlertScheduleOut.csv"));
-			std::vector<std::pair<wstring, wstring>>::iterator pairItr;
 
-			for (pairItr = vctSchedulesToReturn[k].second.begin(); pairItr!=vctSchedulesToReturn[k].second.end(); pairItr++)
+	for (size_t j=0;j < vctSchedulesToReturn.size();j++)
+	{
+		auto platformPath = Windows::Storage::ApplicationData::Current->RoamingFolder->Path;
+		std::wstring wstrplatformPath = platformPath->Data();
+		std::wstring wstrPlatformPathAndFilename = wstrplatformPath + L"\\" + availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(j) + L"_" + L"AlertScheduleOut.csv";
+		std::string convertedPlatformPathandFilename(wstrPlatformPathAndFilename.begin(), wstrPlatformPathAndFilename.end());
+		std::wofstream outFile(convertedPlatformPathandFilename, std::ofstream::out | std::ofstream::trunc);
+		std::vector<std::pair<wstring, wstring>>::iterator pairItr;
+		std::wstring strScheduleOutputString = L"";
+		size_t iDinnerAndMovieCounter=0;
+		strScheduleOutputString += L"Juice Torrence's Genetic Alert Scheduling Builder Output File Version 0.0"s + L"\n"
+			+ availabilityData.month +L"," + std::to_wstring(availabilityData.year) + L"\n";
+		for (size_t j = 0;j < scheduleData.iNumberOfAvailabilityPeriods;j++) 
+		{
+			strScheduleOutputString += std::to_wstring(j + 1);
+			if (j != scheduleData.iNumberOfAvailabilityPeriods-1 || scheduleData.iNumberOfSubPeriods[j] == 2)
 			{
-				outFile << pairItr->first.c_str();
-				outFile << ',' ;
+				strScheduleOutputString += L",";
 			}
-			outFile << L"\r\n";
-			for (pairItr = vctSchedulesToReturn[k].second.begin(); pairItr != vctSchedulesToReturn[k].second.end(); pairItr++)
+			if (scheduleData.iNumberOfSubPeriods[j] == 2)
 			{
-				outFile << pairItr->second.c_str();
-				outFile << ',';
+				iDinnerAndMovieCounter++;
+				strScheduleOutputString += L"D&M";
+				if (j != scheduleData.iNumberOfAvailabilityPeriods - 1)
+				{
+					strScheduleOutputString += L",";
+				}
 			}
 		}
+		strScheduleOutputString += L"\n";
+		for (pairItr = vctSchedulesToReturn[j].second.begin(); pairItr!=vctSchedulesToReturn[j].second.end(); pairItr++)
+		{
+			strScheduleOutputString += pairItr->first;
+			if ((pairItr + 1) != vctSchedulesToReturn[j].second.end())
+			{
+				strScheduleOutputString += L",";
+			}
+		}
+		strScheduleOutputString += L"\n";
+		for (pairItr = vctSchedulesToReturn[j].second.begin(); pairItr!=vctSchedulesToReturn[j].second.end(); pairItr++)
+		{
+			strScheduleOutputString += pairItr->second;
+			if ((pairItr + 1) != vctSchedulesToReturn[j].second.end())
+			{
+				strScheduleOutputString += L",";
+			}
+		}
+		outFile << strScheduleOutputString;
+		outFile.flush();
+		outFile.close();
 	}
 }
 
