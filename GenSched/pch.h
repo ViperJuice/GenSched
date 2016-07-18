@@ -18,7 +18,7 @@
 #include "ScheduleScorer.h"
 #include "App.xaml.h"
 #include "DataReader.h"
-#include "EvoSchedulingProcessData.h";
+#include "EvoSchedulingProcessData.h"
 #include "CSVDataReader.h"
 #include "CSVDataReaderFactory.h"
 #include "FileFunctions.h"

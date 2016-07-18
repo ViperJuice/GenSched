@@ -4,12 +4,14 @@ class EvolutionSchedulingEngine:
 	public SchedulingEngine
 {
 public:
+	~EvolutionSchedulingEngine();
 	EvolutionSchedulingEngine();
 	EvolutionSchedulingEngine(size_t iPopulationSize, size_t iNumberOfGenerationsToRun);
 	void ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback);
 	void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback);
 
 private:
+	random_device rd;
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild) override;
 	void BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
 	void scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData & scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation);
@@ -17,7 +19,8 @@ private:
 	void SortPopulationByScore();
 	void SpawnNewPopulation();
 	void PassSchedulingProcessUpdate(AvailabilityData &availabilityData, size_t iGenerationNumber);
-
+	void Mutate(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
+	void CheckValidNamePair(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
