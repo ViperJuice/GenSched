@@ -12,7 +12,7 @@ using namespace std;
 class ScheduleScorer sealed
 {
 public:
-	ScheduleScorer(AvailabilityData availabilityData, ScheduleData scheduleData);
+	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData);
 	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> getFuncs();
 private:
 	AvailabilityData availabilityData;
@@ -26,7 +26,7 @@ private:
 	const size_t iMaxNumberOfDaysKey;
 	const size_t iOnOffOnPrefKey;
 	const size_t iAlertBeforeGreyDayPrefKey;
-	//TODO const size_t iAlertOnGreyDayPrefKey;
+	const size_t iAlertOnGreyDayPrefKey;
 	const size_t iDinnerAndMovie1stHalfPrefKey;
 	const size_t iBrave1QualKey;
 	const size_t iSOFKey;
@@ -38,7 +38,7 @@ private:
 	const size_t iMaxNumberOfDaysScoreKey;
 	const size_t iOnOffOnScoreKey;
 	const size_t iAlertBeforeGreyDayScoreKey;
-	//TODO const size_t iAlertOnGreyDayScoreKey;
+	const size_t iAlertOnGreyDayScoreKey;
 	const size_t iDinnerAndMovie1stHalfScoreKey;
 	const size_t i2SOFSScoreKey;
 	const size_t i2SupersScoreKey;

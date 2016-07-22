@@ -156,6 +156,7 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="ScheduleData.h" />
+    <ClInclude Include="ScheduleScoreData.h" />
     <ClInclude Include="ScheduleScorer.h" />
     <ClInclude Include="SchedulingEngine.h" />
     <ClInclude Include="SchedulingEngineFactory.h" />

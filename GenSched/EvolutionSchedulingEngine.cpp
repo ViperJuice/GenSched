@@ -465,7 +465,7 @@ void EvolutionSchedulingEngine::SpawnNewPopulation()
 		uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
 		size_t iIndex1 = dist(gen);
 		size_t iIndex2 = dist(gen);
-		while (iIndex1 == iIndex2)//Insure different indexes
+		while (iIndex1 == iIndex2)//Ensure different indexes
 		{
 			iIndex2 = dist(gen);
 		}

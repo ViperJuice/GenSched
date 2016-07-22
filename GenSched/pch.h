@@ -14,6 +14,7 @@
 #include <random>
 #include <future>
 #include "ScheduleData.h"
+#include "ScheduleScoreData.h"
 #include "AvailabilityData.h"
 #include "ScheduleScorer.h"
 #include "App.xaml.h"

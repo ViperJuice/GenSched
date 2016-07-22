@@ -17,6 +17,7 @@ private:
 	pair<wstring, wstring>** wstrSchedules;
 	EvoSchedulingProcessData* evoSchedulingProcessData;
 	ScheduleData scheduleData;
+	ScheduleScoreData scheduleScoreData;
 	AvailabilityData* availabilityData;
 	Windows::Storage::Streams::DataReader^ reader;
 

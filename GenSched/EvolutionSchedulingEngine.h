@@ -40,6 +40,7 @@ private:
 	double iSexualWithoutCrossoverPercentage = 10;//number of population that will sexually reproduce without crossover
 	double iSexualWithChoppingPercentage = 10;//number of population that sexually reproduce by chopping
 	int* iScores = nullptr; //holds schedule scores
+	ScheduleScoreData scheduleScoreData; //hold schedule score information
 };
 
 

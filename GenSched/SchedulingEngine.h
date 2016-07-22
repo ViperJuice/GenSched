@@ -19,7 +19,7 @@ public:
 	virtual void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback)=0;// TODO is this abstract enought for non-evolutionary build method? May need to move to child calss
 	void SetStopTheEngine(const bool stopTheEngine);
 private:
-
+	
 	virtual ScheduleData BuildScheduleShell(AvailabilityData &availabilityData);
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)=0;
 

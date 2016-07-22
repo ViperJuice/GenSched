@@ -49,6 +49,7 @@
     <ClInclude Include="ScheduleScorer.h" />
     <ClInclude Include="MainSchedulingSingleton.h" />
     <ClInclude Include="EvoSchedulingProcessData.h" />
+    <ClInclude Include="ScheduleScoreData.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">

@@ -2,20 +2,20 @@
 #include "ScheduleScorer.h"
 
 
-ScheduleScorer::ScheduleScorer(AvailabilityData availabilityData, ScheduleData scheduleData) :
+ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData) :
 	iDesiredNumberOfDaysKey(FindMapKeyFromValue(L"Des#", availabilityData.mapNumberPrefType)),
 	iPreferedNumberOfDaysInRowKey(FindMapKeyFromValue(L"Pref#", availabilityData.mapNumberPrefType)),
 	iMaxNumberOfDaysKey(FindMapKeyFromValue(L"Max#", availabilityData.mapNumberPrefType)),
 	iOnOffOnPrefKey(FindMapKeyFromValue(L"O-O-O", availabilityData.mapNumberPrefType)),
 	iAlertBeforeGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
-	//TODO iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
+	iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert On Grey Day", availabilityData.mapNumberPrefType)),
 	iDinnerAndMovie1stHalfPrefKey(FindMapKeyFromValue(L"D&M", availabilityData.mapNumberPrefType)),
 	iDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"Des#_Score", availabilityData.mapNumberScorableType)),
 	iPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"Pref#_Score", availabilityData.mapNumberScorableType)),
 	iMaxNumberOfDaysScoreKey(FindMapKeyFromValue(L"Max#_Score", availabilityData.mapNumberScorableType)),
 	iOnOffOnScoreKey(FindMapKeyFromValue(L"O-O-O_Score", availabilityData.mapNumberScorableType)),
 	iAlertBeforeGreyDayScoreKey(FindMapKeyFromValue(L"Alert Before Grey Day_Score", availabilityData.mapNumberScorableType)),
-	//TODO iAlertOnGreyDayScoreKey(FindMapKeyFromValue(L"Alert On Grey Day_Score", availabilityData.mapNumberScorableType)),
+	iAlertOnGreyDayScoreKey(FindMapKeyFromValue(L"Alert On Grey Day_Score", availabilityData.mapNumberScorableType)),
 	iDinnerAndMovie1stHalfScoreKey(FindMapKeyFromValue(L"D&M_Score", availabilityData.mapNumberScorableType)),
 	i2SOFSScoreKey(FindMapKeyFromValue(L"2-SOFs_Score", availabilityData.mapNumberScorableType)),
 	i2SupersScoreKey(FindMapKeyFromValue(L"2-Supers_Score", availabilityData.mapNumberScorableType)),
@@ -38,6 +38,7 @@ ScheduleScorer::ScheduleScorer(AvailabilityData availabilityData, ScheduleData s
 	iMaxNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iMaxNumberOfDaysScoreKey)->second),
 	iOnOffOn_Score(availabilityData.mapScorableNumToScore.find(iOnOffOnScoreKey)->second),
 	iAlertBeforeGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
+	iAlertOnGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertOnGreyDayScoreKey)->second),
 	iDinnerAndMovie1stHalf_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovie1stHalfScoreKey)->second),
 	i2SOFs_Score(availabilityData.mapScorableNumToScore.find(i2SOFSScoreKey)->second),
 	i2Supers_Score(availabilityData.mapScorableNumToScore.find(i2SupersScoreKey)->second),
@@ -574,7 +575,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 						}
 					}
 				}
-				iscore += iGreyDayCount * iAlertOnGreyDay_Score; //TODO * availabilityData.ppIntPrefArray[i][iAlertOnGreyDayPrefKey];//Score Alert on grey days
+				iscore += iGreyDayCount * iAlertOnGreyDay_Score * availabilityData.ppIntPrefArray[i][iAlertOnGreyDayPrefKey];//Score Alert on grey days
 			}
 			return iscore;
 		}
