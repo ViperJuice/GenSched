@@ -14,9 +14,12 @@ class ScheduleScorer sealed
 public:
 	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData);
 	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> getFuncs();
+	void SetFinalScheduleFlag(bool isScoringFinalSchedules);
 private:
+	bool bFinalSchedules;
 	AvailabilityData availabilityData;
 	ScheduleData scheduleData;
+	ScheduleScoreData scheduleScorerData;
 	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
 	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);

@@ -85,6 +85,10 @@ void MainSchedulingSingleton::BuildSchedules()
 		{
 			return evoSchedulingProcessData->EvolutionProcessUpdateCallback(schedulingProcessUpdateCallback);
 		});
+		schedulingEngine->ConnectScheduleScoreDataProcessUpdate([&](ScheduleScoreData scheduleScoreData)
+		{
+			return evoSchedulingProcessData->ScheduleScoreDataUpdataCallback(scheduleScoreData);
+		});
 
 		scheduleData = schedulingEngine->BuildSchedule(*availabilityData, iNumberOfSchedulesToBuild);
 	});

@@ -2,7 +2,7 @@
 #include "ScheduleScorer.h"
 
 
-ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData) :
+ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData) :bFinalSchedules(false),
 	iDesiredNumberOfDaysKey(FindMapKeyFromValue(L"Des#", availabilityData.mapNumberPrefType)),
 	iPreferedNumberOfDaysInRowKey(FindMapKeyFromValue(L"Pref#", availabilityData.mapNumberPrefType)),
 	iMaxNumberOfDaysKey(FindMapKeyFromValue(L"Max#", availabilityData.mapNumberPrefType)),
@@ -54,6 +54,11 @@ ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData 
 	scheduleData(scheduleData)
 {
 	PopulateScoreFunctions();
+}
+
+void ScheduleScorer::SetFinalScheduleFlag(bool bIsScoringFinalSchedules)
+{
+	bFinalSchedules = bIsScoringFinalSchedules;
 }
 
 std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> ScheduleScorer::getFuncs()

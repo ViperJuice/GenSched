@@ -9,6 +9,7 @@ public:
 	EvolutionSchedulingEngine(size_t iPopulationSize, size_t iNumberOfGenerationsToRun);
 	void ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback);
 	void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback);
+	void ConnectScheduleScoreDataProcessUpdate(std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback);
 
 private:
 	random_device rd;
@@ -23,6 +24,8 @@ private:
 	void CheckValidNamePair(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
+	std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback;
+	ScheduleScoreData scheduleScoreData;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
 	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation;
 	std::vector<size_t> topScores;
@@ -40,7 +43,6 @@ private:
 	double iSexualWithoutCrossoverPercentage = 10;//number of population that will sexually reproduce without crossover
 	double iSexualWithChoppingPercentage = 10;//number of population that sexually reproduce by chopping
 	int* iScores = nullptr; //holds schedule scores
-	ScheduleScoreData scheduleScoreData; //hold schedule score information
 };
 
 

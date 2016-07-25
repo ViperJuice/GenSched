@@ -29,6 +29,12 @@ void EvolutionSchedulingEngine::ConnectSchedulingProcessUpdateCallback(std::func
 	EvolutionSchedulingEngine::schedulingProcessUpdateCallback = schedulingProcessUpdateCallback;
 }
 
+void EvolutionSchedulingEngine::ConnectScheduleScoreDataProcessUpdate(std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback)
+{
+	EvolutionSchedulingEngine::scheduleScoreDataUpdateCallback = scheduleScoreDataUpdateCallback;
+}
+
+
 void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
 {
 	size_t iGenerationNumber = 0;
@@ -232,6 +238,7 @@ void EvolutionSchedulingEngine::BuildInitialPopulation
 void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation)
 {
 	ScheduleScorer scheduleScorer(availabilityData, scheduleData);
+	scheduleScorer.SetFinalScheduleFlag(false);
 	size_t iNumberOfScoringFunctions = scheduleScorer.getFuncs().size();
 	std::unique_ptr<std::future<size_t>[]> schedScoreFutures(new future<size_t>[iPopulationSize]);
 	for (size_t i = 0;i < iPopulationSize;i++)
@@ -619,6 +626,7 @@ void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &av
 	iAverageScore = iAverageScore / iNumberOfSchedulesToBuildUnsigned;
 	pairToReturn.second.second = iAverageScore;
 	schedulingProcessUpdateCallback(pairToReturn);
+	scheduleScoreDataUpdateCallback(scheduleScoreData);
 	//End callbacks and updates to main process
 }
 
