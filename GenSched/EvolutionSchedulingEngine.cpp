@@ -40,13 +40,13 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	size_t iGenerationNumber = 0;
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
-	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
+	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation, false);
 	SortPopulationByScore();
 	PassSchedulingProcessUpdate(availabilityData, 0);//Pass info back to main process
 	for (size_t i = 1;i < iNumberOfGenerationsToRun && !bStopTheEngine;i++)
 	{
 		SpawnNewPopulation();
-		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation);
+		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation, false);
 		SortPopulationByScore();
 		PassSchedulingProcessUpdate(availabilityData, i);//Pass info back to main process
 	}
@@ -235,10 +235,10 @@ void EvolutionSchedulingEngine::BuildInitialPopulation
 		}
 	}
 }
-void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation)
+void EvolutionSchedulingEngine::scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation, bool bFinalSchedules)
 {
 	ScheduleScorer scheduleScorer(availabilityData, scheduleData);
-	scheduleScorer.SetFinalScheduleFlag(false);
+	scheduleScorer.SetFinalScheduleFlag(bFinalSchedules);
 	size_t iNumberOfScoringFunctions = scheduleScorer.getFuncs().size();
 	std::unique_ptr<std::future<size_t>[]> schedScoreFutures(new future<size_t>[iPopulationSize]);
 	for (size_t i = 0;i < iPopulationSize;i++)
@@ -597,7 +597,8 @@ void EvolutionSchedulingEngine::SpawnNewPopulation()
 void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &availabilityData, size_t iGenerationNumber)
 {
 	//Update Scheduling process metadata via callback to main process scheduling data object
-	std:vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
+	std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;//For Display
+	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctIntSchedulesToReturn;//For Schedule scoreData
 	vctSchedulesToReturn.reserve(iNumberOfSchedulesToBuild);
 	std::pair<wstring, wstring> pairGeneToAdd;
 	std::pair<int, std::vector<pair<wstring, wstring>>> pairScoreAndGeneToAdd;
@@ -605,6 +606,7 @@ void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &av
 	int iNumberOfSchedulesToBuildUnsigned = iNumberOfSchedulesToBuild;
 	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
 	{
+		vctIntSchedulesToReturn.push_back(vctScoreAndSchedulePopulation[j]);
 		pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
 		for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
 		{
@@ -614,6 +616,7 @@ void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &av
 		}
 		vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
 	}
+	scoreSchedulePopulation(availabilityData, scheduleData, vctIntSchedulesToReturn, true);
 	schedulesUpdateCallback(vctSchedulesToReturn);
 	int iAverageScore = 0;
 	std::pair <size_t, std::pair<int, int>> pairToReturn;

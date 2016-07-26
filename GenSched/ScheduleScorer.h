@@ -19,7 +19,7 @@ private:
 	bool bFinalSchedules;
 	AvailabilityData availabilityData;
 	ScheduleData scheduleData;
-	ScheduleScoreData scheduleScorerData;
+	ScheduleScoreData scheduleScoreData;
 	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
 	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);

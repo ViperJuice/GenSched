@@ -15,7 +15,7 @@ private:
 	random_device rd;
 	virtual void FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild) override;
 	void BuildInitialPopulation(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
-	void scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData & scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation);
+	void scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData & scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation, bool bFinalSchedules);
 	void FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
 	void SortPopulationByScore();
 	void SpawnNewPopulation();
@@ -28,6 +28,7 @@ private:
 	ScheduleScoreData scheduleScoreData;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
 	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation;
+	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctSchedulesToReturn;
 	std::vector<size_t> topScores;
 	size_t iPopulationSize = 1000;//size of breeding population 
 	size_t iNumberOfGenerationsToRun = 1000;//number of generations to run
