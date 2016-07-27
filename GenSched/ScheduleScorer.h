@@ -23,6 +23,10 @@ private:
 	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
 	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);
+	std::mutex mtxScheduleSpecific;
+	std::mutex mtxDateSpecific;
+	std::mutex mtxNameSpecific;
+	std::mutex mtxDateAndNameSpecific;
 	size_t alertCount=0;
 	const size_t iDesiredNumberOfDaysKey;
 	const size_t iPreferedNumberOfDaysInRowKey;
