@@ -6,7 +6,7 @@ SchedulingEngine::~SchedulingEngine()
 
 }
 
-ScheduleData SchedulingEngine::BuildSchedule(AvailabilityData availabilityData, size_t iNumberOfSchedulesToBuild)
+ScheduleData SchedulingEngine::BuildSchedule(AvailabilityData &availabilityData, size_t iNumberOfSchedulesToBuild)
 {
 	
 	scheduleData.wstrSchedules = new pair<wstring, wstring>*[iNumberOfSchedulesToBuild];
@@ -21,7 +21,7 @@ void SchedulingEngine::SetStopTheEngine(const bool stopTheEngine)
 	SchedulingEngine::bStopTheEngine = stopTheEngine;
 }
 
-ScheduleData SchedulingEngine::BuildScheduleShell(AvailabilityData availabilityData)
+ScheduleData SchedulingEngine::BuildScheduleShell(AvailabilityData &availabilityData)
 {
 	//Build array of correct size to hold schedule
 	scheduleData.iTotalNumberOfSubPeriods = availabilityData.iNumberOfAvailabilityPeriods;

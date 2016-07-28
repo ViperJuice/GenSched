@@ -16,6 +16,11 @@ void EvoSchedulingProcessData::SchedulesUpdateCallback(std::vector<std::pair<int
 	EvoSchedulingProcessData::schedules = schedules;
 }
 
+void EvoSchedulingProcessData::ScheduleScoreDataUpdataCallback(std::vector<ScheduleScoreData> vctScheduleScoreData)
+{
+	EvoSchedulingProcessData::vctScheduleScoreData = vctScheduleScoreData;
+}
+
 void EvoSchedulingProcessData::SetEvoProcessData(std::map<size_t, std::pair<int, int>> mapEvoProcessData)
 {
 	EvoSchedulingProcessData::mapEvoProcessData = mapEvoProcessData;

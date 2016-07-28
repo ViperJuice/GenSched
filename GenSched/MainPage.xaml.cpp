@@ -32,7 +32,12 @@ MainPage::MainPage()
 void GenSched::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	mainSchedulingSingleton = MainSchedulingSingleton::Instance();
-	mainSchedulingSingleton->RunSchedulingProcess();
+	mainSchedulingSingleton->ImportSchedulingData();
+}
+
+void GenSched::MainPage::button_BuildSchedules_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	mainSchedulingSingleton->BuildSchedules();
 }
 
 void GenSched::MainPage::button_CompletBuild_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
@@ -40,8 +45,5 @@ void GenSched::MainPage::button_CompletBuild_Click(Platform::Object^ sender, Win
 	mainSchedulingSingleton->ForceCompleteSchedulingProcess();
 }
 
-void GenSched::MainPage::App_Suspending(Object ^ sender, SuspendingEventArgs ^ e)
-{
-	auto deferral = e->SuspendingOperation->GetDeferral();
-}
+
 

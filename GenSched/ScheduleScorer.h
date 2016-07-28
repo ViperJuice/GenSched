@@ -12,21 +12,28 @@ using namespace std;
 class ScheduleScorer sealed
 {
 public:
-	ScheduleScorer(AvailabilityData availabilityData, ScheduleData scheduleData);
-	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> getFuncs();
+	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<ScheduleScoreData> &vctScheduleScoreData);
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember)>> getFuncs();
+	void SetFinalScheduleFlag(bool isScoringFinalSchedules);
 private:
+	bool bFinalSchedules;
 	AvailabilityData availabilityData;
 	ScheduleData scheduleData;
-	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
+	std::vector<ScheduleScoreData>* vctScheduleScoreData;
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember)>> funcs;
 	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);
+	std::mutex mtxScheduleSpecific;
+	std::mutex mtxDateSpecific;
+	std::mutex mtxNameSpecific;
+	std::mutex mtxDateAndNameSpecific;
 	size_t alertCount=0;
 	const size_t iDesiredNumberOfDaysKey;
 	const size_t iPreferedNumberOfDaysInRowKey;
 	const size_t iMaxNumberOfDaysKey;
 	const size_t iOnOffOnPrefKey;
 	const size_t iAlertBeforeGreyDayPrefKey;
-	//TODO const size_t iAlertOnGreyDayPrefKey;
+	const size_t iAlertOnGreyDayPrefKey;
 	const size_t iDinnerAndMovie1stHalfPrefKey;
 	const size_t iBrave1QualKey;
 	const size_t iSOFKey;
@@ -38,7 +45,7 @@ private:
 	const size_t iMaxNumberOfDaysScoreKey;
 	const size_t iOnOffOnScoreKey;
 	const size_t iAlertBeforeGreyDayScoreKey;
-	//TODO const size_t iAlertOnGreyDayScoreKey;
+	const size_t iAlertOnGreyDayScoreKey;
 	const size_t iDinnerAndMovie1stHalfScoreKey;
 	const size_t i2SOFSScoreKey;
 	const size_t i2SupersScoreKey;

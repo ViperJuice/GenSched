@@ -46,6 +46,13 @@ void ::GenSched::MainPage::Connect(int __connectionId, ::Platform::Object^ __tar
             break;
         case 4:
             {
+                this->button_BuildSchedules = safe_cast<::Windows::UI::Xaml::Controls::Button^>(__target);
+                (safe_cast<::Windows::UI::Xaml::Controls::Button^>(this->button_BuildSchedules))->Click += ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::GenSched::MainPage::*)
+                    (::Platform::Object^, ::Windows::UI::Xaml::RoutedEventArgs^))&MainPage::button_BuildSchedules_Click);
+            }
+            break;
+        case 5:
+            {
                 this->button_CompletBuild = safe_cast<::Windows::UI::Xaml::Controls::Button^>(__target);
                 (safe_cast<::Windows::UI::Xaml::Controls::Button^>(this->button_CompletBuild))->Click += ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::GenSched::MainPage::*)
                     (::Platform::Object^, ::Windows::UI::Xaml::RoutedEventArgs^))&MainPage::button_CompletBuild_Click);

@@ -5,6 +5,7 @@ public:
 	EvoSchedulingProcessData();
 	void EvolutionProcessUpdateCallback(std::pair<size_t, std::pair<int, int>> pairEvoProcessData);
 	void SchedulesUpdateCallback(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedules);
+	void ScheduleScoreDataUpdataCallback(std::vector<ScheduleScoreData> vctScheduleScoreData);
 	std::map<size_t, std::pair<int, int>> GetEvoProcessData();
 	size_t GetSchedulesToCreate();
 	size_t GetGenerationsToRun();
@@ -15,6 +16,7 @@ private:
 	//holds high score and average score for each generation
 	std::map<size_t, std::pair<int,int>> mapEvoProcessData;
 	std::vector<std::pair<int, std::vector<std::pair<wstring,wstring>>>> schedules;
+	std::vector<ScheduleScoreData> vctScheduleScoreData;
 	void SetEvoProcessData(std::map<size_t, std::pair<int, int>> mapEvoProcessData);
 	void SetSchedules(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedules);
 	size_t iSchedulesToCreate = 10;

@@ -6,11 +6,6 @@
 #pragma once
 
 #include "MainPage.g.h"
-using namespace Windows::ApplicationModel;
-using namespace Windows::ApplicationModel::Activation;
-using namespace Windows::Foundation;
-using namespace Windows::UI::Xaml;
-
 
 namespace GenSched
 {
@@ -24,8 +19,10 @@ namespace GenSched
 
 	private:
 		MainSchedulingSingleton* mainSchedulingSingleton;
+
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+
 		void button_CompletBuild_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void MainPage::App_Suspending(Object^ sender, SuspendingEventArgs^ e);
+		void button_BuildSchedules_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

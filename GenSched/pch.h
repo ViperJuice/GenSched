@@ -14,11 +14,12 @@
 #include <random>
 #include <future>
 #include "ScheduleData.h"
+#include "ScheduleScoreData.h"
 #include "AvailabilityData.h"
 #include "ScheduleScorer.h"
 #include "App.xaml.h"
 #include "DataReader.h"
-#include "EvoSchedulingProcessData.h";
+#include "EvoSchedulingProcessData.h"
 #include "CSVDataReader.h"
 #include "CSVDataReaderFactory.h"
 #include "FileFunctions.h"
