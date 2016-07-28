@@ -1,76 +1,76 @@
 #include "pch.h"
 #include "ScheduleScorer.h"
 
+ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<ScheduleScoreData> &vctScheduleScoreData) :
+	bFinalSchedules(false),
+	iDesiredNumberOfDaysKey(FindMapKeyFromValue(L"Des#", availabilityData.mapNumberPrefType)),
+	iPreferedNumberOfDaysInRowKey(FindMapKeyFromValue(L"Pref#", availabilityData.mapNumberPrefType)),
+	iMaxNumberOfDaysKey(FindMapKeyFromValue(L"Max#", availabilityData.mapNumberPrefType)),
+	iOnOffOnPrefKey(FindMapKeyFromValue(L"O-O-O", availabilityData.mapNumberPrefType)),
+	iAlertBeforeGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
+	iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert On Grey Day", availabilityData.mapNumberPrefType)),
+	iDinnerAndMovie1stHalfPrefKey(FindMapKeyFromValue(L"D&M", availabilityData.mapNumberPrefType)),
+	iDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"Des#_Score", availabilityData.mapNumberScorableType)),
+	iPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"Pref#_Score", availabilityData.mapNumberScorableType)),
+	iMaxNumberOfDaysScoreKey(FindMapKeyFromValue(L"Max#_Score", availabilityData.mapNumberScorableType)),
+	iOnOffOnScoreKey(FindMapKeyFromValue(L"O-O-O_Score", availabilityData.mapNumberScorableType)),
+	iAlertBeforeGreyDayScoreKey(FindMapKeyFromValue(L"Alert Before Grey Day_Score", availabilityData.mapNumberScorableType)),
+	iAlertOnGreyDayScoreKey(FindMapKeyFromValue(L"Alert On Grey Day_Score", availabilityData.mapNumberScorableType)),
+	iDinnerAndMovie1stHalfScoreKey(FindMapKeyFromValue(L"D&M_Score", availabilityData.mapNumberScorableType)),
+	i2SOFSScoreKey(FindMapKeyFromValue(L"2-SOFs_Score", availabilityData.mapNumberScorableType)),
+	i2SupersScoreKey(FindMapKeyFromValue(L"2-Supers_Score", availabilityData.mapNumberScorableType)),
+	iScheduledOnDesiredDayScoreKey(FindMapKeyFromValue(L"Scheduled-On-Desired-Day_Score", availabilityData.mapNumberScorableType)),
+	iScheduledOnUnDesiredDayScoreKey(FindMapKeyFromValue(L"Scheduled-On-UnDesired-Day_Score", availabilityData.mapNumberScorableType)),
+	iDinnerAndMovieOnDesiredDayScoreKey(FindMapKeyFromValue(L"D&M-On-Desired-Day_Score", availabilityData.mapNumberScorableType)),
+	iBucketScheduledDaysDifferenceScoreKey(FindMapKeyFromValue(L"Bucket-Scheduled-Difference_Score", availabilityData.mapNumberScorableType)),
+	iDSGScheduledOnDesiredDayScoreKey(FindMapKeyFromValue(L"DSG-Scheduled-On-Available-Day_Score", availabilityData.mapNumberScorableType)),
+	iBucketTooManyGreyDayScoreKey(FindMapKeyFromValue(L"Too-Many-Grey-Days_Score", availabilityData.mapNumberScorableType)),
+	iPositionSwapScoreKey(FindMapKeyFromValue(L"Position-Swap_Score", availabilityData.mapNumberScorableType)),
+	iScheduledWithDesiredWingmanScoreKey(FindMapKeyFromValue(L"Scheduled-With-Desired-Wingman_Score", availabilityData.mapNumberScorableType)),
 
-ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData) :bFinalSchedules(false),
-iDesiredNumberOfDaysKey(FindMapKeyFromValue(L"Des#", availabilityData.mapNumberPrefType)),
-iPreferedNumberOfDaysInRowKey(FindMapKeyFromValue(L"Pref#", availabilityData.mapNumberPrefType)),
-iMaxNumberOfDaysKey(FindMapKeyFromValue(L"Max#", availabilityData.mapNumberPrefType)),
-iOnOffOnPrefKey(FindMapKeyFromValue(L"O-O-O", availabilityData.mapNumberPrefType)),
-iAlertBeforeGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
-iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert On Grey Day", availabilityData.mapNumberPrefType)),
-iDinnerAndMovie1stHalfPrefKey(FindMapKeyFromValue(L"D&M", availabilityData.mapNumberPrefType)),
-iDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"Des#_Score", availabilityData.mapNumberScorableType)),
-iPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"Pref#_Score", availabilityData.mapNumberScorableType)),
-iMaxNumberOfDaysScoreKey(FindMapKeyFromValue(L"Max#_Score", availabilityData.mapNumberScorableType)),
-iOnOffOnScoreKey(FindMapKeyFromValue(L"O-O-O_Score", availabilityData.mapNumberScorableType)),
-iAlertBeforeGreyDayScoreKey(FindMapKeyFromValue(L"Alert Before Grey Day_Score", availabilityData.mapNumberScorableType)),
-iAlertOnGreyDayScoreKey(FindMapKeyFromValue(L"Alert On Grey Day_Score", availabilityData.mapNumberScorableType)),
-iDinnerAndMovie1stHalfScoreKey(FindMapKeyFromValue(L"D&M_Score", availabilityData.mapNumberScorableType)),
-i2SOFSScoreKey(FindMapKeyFromValue(L"2-SOFs_Score", availabilityData.mapNumberScorableType)),
-i2SupersScoreKey(FindMapKeyFromValue(L"2-Supers_Score", availabilityData.mapNumberScorableType)),
-iScheduledOnDesiredDayScoreKey(FindMapKeyFromValue(L"Scheduled-On-Desired-Day_Score", availabilityData.mapNumberScorableType)),
-iScheduledOnUnDesiredDayScoreKey(FindMapKeyFromValue(L"Scheduled-On-UnDesired-Day_Score", availabilityData.mapNumberScorableType)),
-iDinnerAndMovieOnDesiredDayScoreKey(FindMapKeyFromValue(L"D&M-On-Desired-Day_Score", availabilityData.mapNumberScorableType)),
-iBucketScheduledDaysDifferenceScoreKey(FindMapKeyFromValue(L"Bucket-Scheduled-Difference_Score", availabilityData.mapNumberScorableType)),
-iDSGScheduledOnDesiredDayScoreKey(FindMapKeyFromValue(L"DSG-Scheduled-On-Available-Day_Score", availabilityData.mapNumberScorableType)),
-iBucketTooManyGreyDayScoreKey(FindMapKeyFromValue(L"Too-Many-Grey-Days_Score", availabilityData.mapNumberScorableType)),
-iPositionSwapScoreKey(FindMapKeyFromValue(L"Position-Swap_Score", availabilityData.mapNumberScorableType)),
-iScheduledWithDesiredWingmanScoreKey(FindMapKeyFromValue(L"Scheduled-With-Desired-Wingman_Score", availabilityData.mapNumberScorableType)),
+	iBrave1QualKey(FindMapKeyFromValue(L"Brave1", availabilityData.mapNumberQualType)),
+	iSOFKey(FindMapKeyFromValue(L"SOF", availabilityData.mapNumberQualType)),
+	iSuperKey(FindMapKeyFromValue(L"Super", availabilityData.mapNumberQualType)),
+	iDSGKey(FindMapKeyFromValue(L"DSG", availabilityData.mapNumberQualType)),
 
-iBrave1QualKey(FindMapKeyFromValue(L"Brave1", availabilityData.mapNumberQualType)),
-iSOFKey(FindMapKeyFromValue(L"SOF", availabilityData.mapNumberQualType)),
-iSuperKey(FindMapKeyFromValue(L"Super", availabilityData.mapNumberQualType)),
-iDSGKey(FindMapKeyFromValue(L"DSG", availabilityData.mapNumberQualType)),
-
-iDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iDesiredNumberOfDaysScoreKey)->second),
-iPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iPreferedNumberOfDaysInRowScoreKey)->second),
-iMaxNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iMaxNumberOfDaysScoreKey)->second),
-iOnOffOn_Score(availabilityData.mapScorableNumToScore.find(iOnOffOnScoreKey)->second),
-iAlertBeforeGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
-iAlertOnGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertOnGreyDayScoreKey)->second),
-iDinnerAndMovie1stHalf_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovie1stHalfScoreKey)->second),
-i2SOFs_Score(availabilityData.mapScorableNumToScore.find(i2SOFSScoreKey)->second),
-i2Supers_Score(availabilityData.mapScorableNumToScore.find(i2SupersScoreKey)->second),
-iScheduledOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnDesiredDayScoreKey)->second),
-iScheduledOnUnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnUnDesiredDayScoreKey)->second),
-iDinnerAndMovieOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovieOnDesiredDayScoreKey)->second),
-iDifferenceFromBucket_Score(availabilityData.mapScorableNumToScore.find(iBucketScheduledDaysDifferenceScoreKey)->second),
-iDSGScheduledOnAvailableDay_Score(availabilityData.mapScorableNumToScore.find(iDSGScheduledOnDesiredDayScoreKey)->second),
-iTooManyGreyDays_Score(availabilityData.mapScorableNumToScore.find(iBucketTooManyGreyDayScoreKey)->second),
-iPositionSwap_Score(availabilityData.mapScorableNumToScore.find(iPositionSwapScoreKey)->second),
-iScheduledWithDesiredWingman_Score(availabilityData.mapScorableNumToScore.find(iScheduledWithDesiredWingmanScoreKey)->second),
-availabilityData(availabilityData),
-scheduleData(scheduleData),
-scheduleScoreData{}
+	iDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iDesiredNumberOfDaysScoreKey)->second),
+	iPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iPreferedNumberOfDaysInRowScoreKey)->second),
+	iMaxNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iMaxNumberOfDaysScoreKey)->second),
+	iOnOffOn_Score(availabilityData.mapScorableNumToScore.find(iOnOffOnScoreKey)->second),
+	iAlertBeforeGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
+	iAlertOnGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertOnGreyDayScoreKey)->second),
+	iDinnerAndMovie1stHalf_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovie1stHalfScoreKey)->second),
+	i2SOFs_Score(availabilityData.mapScorableNumToScore.find(i2SOFSScoreKey)->second),
+	i2Supers_Score(availabilityData.mapScorableNumToScore.find(i2SupersScoreKey)->second),
+	iScheduledOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnDesiredDayScoreKey)->second),
+	iScheduledOnUnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iScheduledOnUnDesiredDayScoreKey)->second),
+	iDinnerAndMovieOnDesiredDay_Score(availabilityData.mapScorableNumToScore.find(iDinnerAndMovieOnDesiredDayScoreKey)->second),
+	iDifferenceFromBucket_Score(availabilityData.mapScorableNumToScore.find(iBucketScheduledDaysDifferenceScoreKey)->second),
+	iDSGScheduledOnAvailableDay_Score(availabilityData.mapScorableNumToScore.find(iDSGScheduledOnDesiredDayScoreKey)->second),
+	iTooManyGreyDays_Score(availabilityData.mapScorableNumToScore.find(iBucketTooManyGreyDayScoreKey)->second),
+	iPositionSwap_Score(availabilityData.mapScorableNumToScore.find(iPositionSwapScoreKey)->second),
+	iScheduledWithDesiredWingman_Score(availabilityData.mapScorableNumToScore.find(iScheduledWithDesiredWingmanScoreKey)->second),
+	availabilityData(availabilityData),
+	scheduleData(scheduleData),
+	vctScheduleScoreData(&vctScheduleScoreData)
 {
 	PopulateScoreFunctions();
 }
-
 void ScheduleScorer::SetFinalScheduleFlag(bool bIsScoringFinalSchedules)
 {
 	bFinalSchedules = bIsScoringFinalSchedules;
 }
 
-std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> ScheduleScorer::getFuncs()
+std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember)>> ScheduleScorer::getFuncs()
 {
 	return funcs; 
 }
 
+
 void ScheduleScorer::PopulateScoreFunctions()
 {
 	//Function to score desired number of days vs scheduled number of days
-	funcs.push_back([&](std::vector<std::pair<size_t,size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t,size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -103,7 +103,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 							scheduleToScore[j + iDinnerAndMovie].first == i) ||
 							(scheduleData.iNumberOfSubPeriods[j] <= 1 &&
 								scheduleToScore[j + iDinnerAndMovie].second == i)
-								);
+							);
 				}
 			}
 			int iscore = 0;
@@ -116,20 +116,20 @@ void ScheduleScorer::PopulateScoreFunctions()
 				{
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
-					pairDataToAdd.first.second = L"More alerts than desired by " + std::to_wstring(iDesiredDelta) + L".";
+					pairDataToAdd.first.second = L"More alerts than desired by " + std::to_wstring(iDesiredDelta);
 					pairDataToAdd.second = iDesiredDelta*iDesNumOfAlertDays_Score;
 					mtxNameSpecific.lock();
-					scheduleScoreData.vctNameSpecific.push_back(pairDataToAdd);
+					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
 				}
 				else if (bFinalSchedules && iDesiredDelta < 0)
 				{
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
-					pairDataToAdd.first.second = L"Less alerts than desired by " + std::to_wstring(iDesiredDelta * -1) + L".";
-					pairDataToAdd.second = iDesiredDelta*iDesNumOfAlertDays_Score;
+					pairDataToAdd.first.second = L"Less alerts than desired by " + std::to_wstring(iDesiredDelta * -1);
+					pairDataToAdd.second = std::abs(iDesiredDelta)*iDesNumOfAlertDays_Score;
 					mtxNameSpecific.lock();
-					scheduleScoreData.vctNameSpecific.push_back(pairDataToAdd);
+					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
 				}
 				//Difference between bucket requrirment and days scheduled adjusted for leave and TDY
@@ -138,20 +138,20 @@ void ScheduleScorer::PopulateScoreFunctions()
 				{
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
-					pairDataToAdd.first.second = L"More alerts than bucket by " + std::to_wstring(iBucketDelta) + L".";
+					pairDataToAdd.first.second = L"More alerts than bucket by " + std::to_wstring(iBucketDelta);
 					pairDataToAdd.second = iBucketDelta*iDifferenceFromBucket_Score;
 					mtxNameSpecific.lock();
-					scheduleScoreData.vctNameSpecific.push_back(pairDataToAdd);
+					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
 				}
 				else if (bFinalSchedules && iBucketDelta < 0)
 				{
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
-					pairDataToAdd.first.second = L"Less alerts than bucket by " + std::to_wstring(iBucketDelta * -1) + L".";
-					pairDataToAdd.second = iBucketDelta*iDifferenceFromBucket_Score;
+					pairDataToAdd.first.second = L"Less alerts than bucket by " + std::to_wstring(iBucketDelta * -1);
+					pairDataToAdd.second = -1*iBucketDelta*iDifferenceFromBucket_Score;
 					mtxNameSpecific.lock();
-					scheduleScoreData.vctNameSpecific.push_back(pairDataToAdd);
+					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
 				}
 				iscore += std::abs(iDesiredDelta) * iDesNumOfAlertDays_Score + std::abs(iBucketDelta) * iDifferenceFromBucket_Score;
@@ -173,7 +173,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 	});
 
 	//function to score prefered number of days in a row and max number days in a row
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -214,66 +214,68 @@ void ScheduleScorer::PopulateScoreFunctions()
 					}
 					if (bScheduledYesterday && (!bScheduledToday || j == availabilityData.iNumberOfAvailabilityPeriods-1))
 					{
+						size_t iSubtraction = 1;
+						if (j== availabilityData.iNumberOfAvailabilityPeriods - 1 && bScheduledToday) { iSubtraction = 0; }
 						//Penalize for difference between desired and scheduled days in a row
 						iscore += std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
 							* iPrefNumOfAlertDaysInRow_Score;
 						if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] > 0)
 						{
 							std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
-							pairDataToAdd.first.first = j+iDinnerAndMovie;
+							pairDataToAdd.first.first = j+iDinnerAndMovie - iSubtraction;
 							pairDataToAdd.first.second = i;
 							pairDataToAdd.second.first = L"Days in a row greater than desired by "
-								+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) + L".";
-							pairDataToAdd.second.second = (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
+								+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]);
+							pairDataToAdd.second.second = std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
 								* iPrefNumOfAlertDaysInRow_Score;
 							mtxDateAndNameSpecific.lock();
-							scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
 						}
 						else if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] < 0)
 						{
 							std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
-							pairDataToAdd.first.first = j + iDinnerAndMovie;
+							pairDataToAdd.first.first = j + iDinnerAndMovie - iSubtraction;
 							pairDataToAdd.first.second = i;
 							pairDataToAdd.second.first = L"Days in a row less than desired by "
-								+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) + L".";
-							pairDataToAdd.second.second = (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey])
+								+ std::to_wstring(-1*(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]));
+							pairDataToAdd.second.second = std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey])
 								* iPrefNumOfAlertDaysInRow_Score;
 							mtxDateAndNameSpecific.lock();
-							scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
 						}
 						if (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey] > 0)//Penalize for exceeding max desired days in a row
 						{
 							iscore += (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]* iMaxNumOfAlertDays_Score);
-							if (bFinalSchedules)
+							if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey] * iMaxNumOfAlertDays_Score != 0)
 							{
 								std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
-								pairDataToAdd.first.first = j + iDinnerAndMovie;
+								pairDataToAdd.first.first = j + iDinnerAndMovie - iSubtraction;
 								pairDataToAdd.first.second = i;
 								pairDataToAdd.second.first = L"Days in a row greater than personal max by "
-									+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]) + L".";
+									+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]);
 								pairDataToAdd.second.second = iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]
 									* iMaxNumOfAlertDays_Score;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
 						if (iDaysInARow > MAXDAYS)//Penalize for exceeding max days in a row
 						{
 							iscore += (iDaysInARow - MAXDAYS) * iMAXDAYS_Penalty;
-							if (bFinalSchedules)
+							if (bFinalSchedules && (iDaysInARow - MAXDAYS) * iMAXDAYS_Penalty != 0)
 							{
 								std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
-								pairDataToAdd.first.first = j + iDinnerAndMovie;
+								pairDataToAdd.first.first = j + iDinnerAndMovie - iSubtraction;
 								pairDataToAdd.first.second = i;
 								pairDataToAdd.second.first = L"Days in a row greater than allowed max by "
-									+ std::to_wstring(iDaysInARow - MAXDAYS) + L".";
+									+ std::to_wstring(iDaysInARow - MAXDAYS);
 								pairDataToAdd.second.second = iDaysInARow - MAXDAYS
 									* iMAXDAYS_Penalty;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -300,7 +302,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 
 	});
 	//function to score on-off-on penalty
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try {
 			int iscore = 0;
@@ -318,20 +320,20 @@ void ScheduleScorer::PopulateScoreFunctions()
 							//Check Brave 1 D&M to D&M
 							if (scheduleData.iNumberOfSubPeriods[j + 1] > 1)//Check for Back to back D&M day
 							{
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-									(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey]!=0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
@@ -348,20 +350,20 @@ void ScheduleScorer::PopulateScoreFunctions()
 							if (scheduleData.iNumberOfSubPeriods[j + 1] > 1)//Check for Back to back D&M day
 							{
 								//Check Brave 2 D&M to D&M
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-									(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
@@ -388,44 +390,44 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie + 1].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 5].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 5].second) &&
-										((scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-											(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-											(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 5].first ||
+										scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 5].second) &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie + 1].second == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 5].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 5].second) &&
-										((scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-											(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-											(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 5].first ||
+										scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 5].second) &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -436,44 +438,44 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie + 1].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-										((scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-											(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-											(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+										scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie + 1].second == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-										((scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-											(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-											(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+										scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+										scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -485,44 +487,44 @@ void ScheduleScorer::PopulateScoreFunctions()
 						{
 							if (scheduleToScore[j + iDinnerAndMovie + 1].first == i)
 							{
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-									((scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-										(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 3].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
 							}
 							if (scheduleToScore[j + iDinnerAndMovie + 1].second == i)
 							{
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-									((scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-										(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 3].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
@@ -533,40 +535,40 @@ void ScheduleScorer::PopulateScoreFunctions()
 						{
 							if (scheduleToScore[j + iDinnerAndMovie + 1].first == i)
 							{
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-									((scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].first != scheduleToScore[j + iDinnerAndMovie + 2].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
 							}
 							if (scheduleToScore[j + iDinnerAndMovie + 1].second == i)
 							{
-								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-									((scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-									(scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+								if ((scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+									scheduleToScore[j + iDinnerAndMovie + 1].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+									scheduleToScore[j + iDinnerAndMovie + 1].second != scheduleToScore[j + iDinnerAndMovie + 2].second)
 								{
 									iOnOffOn++;
 									if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 									{
-										pairDataToAdd.first.first = j + iDinnerAndMovie;
+										pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 										pairDataToAdd.first.second = i;
-										pairDataToAdd.second.first = L"On-Off-On.";
+										pairDataToAdd.second.first = L"On-Off-On";
 										pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 										mtxDateAndNameSpecific.lock();
-										scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+										vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 										mtxDateAndNameSpecific.unlock();
 									}
 								}
@@ -585,44 +587,44 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second) &&
-											(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-											(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+										scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie].second == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 4].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second) &&
-											(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-											(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 4].first ||
+										scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 4].second) &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -633,44 +635,44 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second) &&
-											(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-											(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+										scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 2].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second) &&
-											(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-											(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+										scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 2].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -686,40 +688,40 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+										scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie].second == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].first ||
+										scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 3].second) &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -729,40 +731,40 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								if (scheduleToScore[j + iDinnerAndMovie].first == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 2].first ||
+										scheduleToScore[j + iDinnerAndMovie].first == scheduleToScore[j + iDinnerAndMovie + 2].second) &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].first != scheduleToScore[j + iDinnerAndMovie + 1].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
 								}
 								if (scheduleToScore[j + iDinnerAndMovie].second == i)
 								{
-									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 2].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 2].second) &&
-										((scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first) ||
-										(scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second)))
+									if ((scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 2].first ||
+										scheduleToScore[j + iDinnerAndMovie].second == scheduleToScore[j + iDinnerAndMovie + 2].second) &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].first &&
+										scheduleToScore[j + iDinnerAndMovie].second != scheduleToScore[j + iDinnerAndMovie + 1].second)
 									{
 										iOnOffOn++;
 										if (bFinalSchedules && availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] != 0)
 										{
-											pairDataToAdd.first.first = j + iDinnerAndMovie;
+											pairDataToAdd.first.first = j + iDinnerAndMovie + 2;
 											pairDataToAdd.first.second = i;
-											pairDataToAdd.second.first = L"On-Off-On.";
+											pairDataToAdd.second.first = L"On-Off-On";
 											pairDataToAdd.second.second = iOnOffOn_Score * availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey];
 											mtxDateAndNameSpecific.lock();
-											scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+											vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 											mtxDateAndNameSpecific.unlock();
 										}
 									}
@@ -788,7 +790,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 	});
 	
 	//function to score alert before grey-day
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -814,10 +816,10 @@ void ScheduleScorer::PopulateScoreFunctions()
 							std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
 							pairDataToAdd.first.first = j + iDinnerAndMovie;
 							pairDataToAdd.first.second = i;
-							pairDataToAdd.second.first = L"Alert Before Grey Day.";
+							pairDataToAdd.second.first = L"Alert Before Grey Day";
 							pairDataToAdd.second.second = iAlertBeforeGreyDay_Score * availabilityData.ppIntPrefArray[i][iAlertBeforeGreyDayPrefKey];
 							mtxDateAndNameSpecific.lock();
-							scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
 						}
 					}
@@ -838,7 +840,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score alert on grey-day
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -862,10 +864,10 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
-								pairDataToAdd.second.first = L"Alert on grey day.";
+								pairDataToAdd.second.first = L"Alert on grey day";
 								pairDataToAdd.second.second = iAlertOnGreyDay_Score * availabilityData.ppIntPrefArray[i][iAlertOnGreyDayPrefKey];
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -880,10 +882,10 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
-								pairDataToAdd.second.first = L"Alert on grey day.";
+								pairDataToAdd.second.first = L"Alert on grey day";
 								pairDataToAdd.second.second = iAlertOnGreyDay_Score * availabilityData.ppIntPrefArray[i][iAlertOnGreyDayPrefKey];
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -905,7 +907,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score Dinner & Movie 1st Half
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -927,11 +929,11 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
-								pairDataToAdd.second.first = L"Alert on grey day.";
+								pairDataToAdd.second.first = L"Alert on grey day";
 								pairDataToAdd.second.second = iDinnerAndMovie1stHalf_Score 
 									* availabilityData.ppIntPrefArray[i][iDinnerAndMovie1stHalfPrefKey];
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -955,7 +957,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score Dinner & Movie on desired & undesired day
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -981,10 +983,10 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
-								pairDataToAdd.second.first = L"Desired D&M.";
+								pairDataToAdd.second.first = L"Desired D&M";
 								pairDataToAdd.second.second = iDinnerAndMovieOnDesiredDay_Score;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -993,14 +995,14 @@ void ScheduleScorer::PopulateScoreFunctions()
 							availabilityData.ppIntAvailabilityTypeArray[i][j] != availabilityData.DINNER_AND_MOVIE)
 						{
 							iUnDesiredDinnerAndMovieCount++;
-							if (bFinalSchedules)
+							if (bFinalSchedules && iDinnerAndMovieNotRequested_Penalty != 0)
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
-								pairDataToAdd.second.first = L"Undesired D&M.";
+								pairDataToAdd.second.first = L"Undesired D&M";
 								pairDataToAdd.second.second = iDinnerAndMovieNotRequested_Penalty;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -1023,7 +1025,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score scheduled on desired day or undesired day
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -1048,32 +1050,32 @@ void ScheduleScorer::PopulateScoreFunctions()
 						if (availabilityData.ppBoolQualArray[i][iDSGKey] == true)
 						{
 							iDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score;
-							if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score)
+							if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score !=0)
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
 								if (availabilityData.ppIntAvailabilityTypeArray[i][j]==availabilityData.ALERT_PLEASE)
 								{
-									pairDataToAdd.second.first = L"DSG Scheduled on \"Alert Please\" day.";
+									pairDataToAdd.second.first = L"DSG Scheduled on \"Alert Please\" day";
 								}
 								else if (availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.ALERT_IS_FINE)
 								{
-									pairDataToAdd.second.first = L"DSG Scheduled on \"Alert Is Fine\" day.";
+									pairDataToAdd.second.first = L"DSG Scheduled on \"Alert Is Fine\" day";
 								}
 								else if (availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.DONT_CARE)
 								{
-									pairDataToAdd.second.first = L"DSG Scheduled on \"Don't Care\" day.";
+									pairDataToAdd.second.first = L"DSG Scheduled on \"Don't Care\" day";
 								}
 								pairDataToAdd.second.second = availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
 						else
 						{
 							iDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnDesiredDay_Score;
-							if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score)
+							if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score != 0)
 							{
 								pairDataToAdd.first.first = j + iDinnerAndMovie;
 								pairDataToAdd.first.second = i;
@@ -1089,9 +1091,9 @@ void ScheduleScorer::PopulateScoreFunctions()
 								{
 									pairDataToAdd.second.first = L"Scheduled on \"Don't Care\" day.";
 								}
-								pairDataToAdd.second.second = availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score;
+								pairDataToAdd.second.second = availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnDesiredDay_Score;
 								mtxDateAndNameSpecific.lock();
-								scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 								mtxDateAndNameSpecific.unlock();
 							}
 						}
@@ -1103,7 +1105,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 						availabilityData.ppIntAvailabilityTypeArray[i][j] == availabilityData.PLEASE_NO))
 					{
 						iUnDesiredAlertsScore += availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnUnDesiredDay_Score;
-						if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score)
+						if (bFinalSchedules && availabilityData.ppIntAvailabilityTypeArray[i][j] * iDSGScheduledOnAvailableDay_Score != 0)
 						{
 							pairDataToAdd.first.first = j + iDinnerAndMovie;
 							pairDataToAdd.first.second = i;
@@ -1115,9 +1117,9 @@ void ScheduleScorer::PopulateScoreFunctions()
 							{
 								pairDataToAdd.second.first = L"Scheduled on \"Please No\" day.";
 							}
-							pairDataToAdd.second.second = availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnUnDesiredDay_Score;
+							pairDataToAdd.second.second = -1 * availabilityData.ppIntAvailabilityTypeArray[i][j] * iScheduledOnUnDesiredDay_Score;
 							mtxDateAndNameSpecific.lock();
-							scheduleScoreData.vctDateAndNameSpecific.push_back(pairDataToAdd);
+							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
 						}
 						iUnDesiredAlerts++;
@@ -1143,7 +1145,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score 2 supers or SOFs scheduled at once
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -1164,7 +1166,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 						pairDataToAdd.second.first = L"2 SOFs scheduled on same day";
 						pairDataToAdd.second.second = i2SOFs_Score;
 						mtxDateSpecific.lock();
-						scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+						vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 						mtxDateSpecific.unlock();
 					}
 				}
@@ -1178,7 +1180,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 						pairDataToAdd.second.first = L"2 Supervisors scheduled on same day";
 						pairDataToAdd.second.second = i2Supers_Score;
 						mtxDateSpecific.lock();
-						scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+						vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 						mtxDateSpecific.unlock();
 					}
 				}
@@ -1202,7 +1204,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//function to score position swaps
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -1217,11 +1219,11 @@ void ScheduleScorer::PopulateScoreFunctions()
 					iSwapCount++;
 					if (bFinalSchedules && iPositionSwap_Score != 0)
 					{
-						pairDataToAdd.first = i + iDinnerAndMovie;
+						pairDataToAdd.first = i + iDinnerAndMovie + 1;
 						pairDataToAdd.second.first = L"Brave1 to Brave2 swap";
 						pairDataToAdd.second.second = iPositionSwap_Score;
 						mtxDateSpecific.lock();
-						scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+						vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 						mtxDateSpecific.unlock();
 					}
 				}
@@ -1230,11 +1232,11 @@ void ScheduleScorer::PopulateScoreFunctions()
 					iSwapCount++;
 					if (bFinalSchedules && iPositionSwap_Score != 0)
 					{
-						pairDataToAdd.first = i + iDinnerAndMovie;
+						pairDataToAdd.first = i + iDinnerAndMovie + 1;
 						pairDataToAdd.second.first = L"Brave2 to Brave1 swap";
 						pairDataToAdd.second.second = iPositionSwap_Score;
 						mtxDateSpecific.lock();
-						scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+						vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 						mtxDateSpecific.unlock();
 					}
 				}
@@ -1254,7 +1256,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 		}
 	});
 	//Function to score matched desired wingman
-	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore) ->size_t
+	funcs.push_back([&](std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember) ->size_t
 	{
 		try
 		{
@@ -1278,7 +1280,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 								pairDataToAdd.second.first = L"Requested wingman match";
 								pairDataToAdd.second.second = iScheduledWithDesiredWingman_Score;
 								mtxDateSpecific.lock();
-								scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 								mtxDateSpecific.unlock();
 							}
 						}
@@ -1291,7 +1293,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 								pairDataToAdd.second.first = L"Requested wingman match";
 								pairDataToAdd.second.second = iScheduledWithDesiredWingman_Score;
 								mtxDateSpecific.lock();
-								scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+								vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 								mtxDateSpecific.unlock();
 							}
 						}
@@ -1311,7 +1313,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 									pairDataToAdd.second.first = L"Requested wingman match";
 									pairDataToAdd.second.second = iScheduledWithDesiredWingman_Score;
 									mtxDateSpecific.lock();
-									scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+									vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 									mtxDateSpecific.unlock();
 								}
 							}
@@ -1324,7 +1326,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 									pairDataToAdd.second.first = L"Requested wingman match";
 									pairDataToAdd.second.second = iScheduledWithDesiredWingman_Score;
 									mtxDateSpecific.lock();
-									scheduleScoreData.vctDateSpecific.push_back(pairDataToAdd);
+									vctScheduleScoreData->at(iPopulationMember).vctDateSpecific.push_back(pairDataToAdd);
 									mtxDateSpecific.unlock();
 								}
 							}

@@ -12,15 +12,15 @@ using namespace std;
 class ScheduleScorer sealed
 {
 public:
-	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData);
-	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> getFuncs();
+	ScheduleScorer(AvailabilityData &availabilityData, ScheduleData &scheduleData, std::vector<ScheduleScoreData> &vctScheduleScoreData);
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember)>> getFuncs();
 	void SetFinalScheduleFlag(bool isScoringFinalSchedules);
 private:
 	bool bFinalSchedules;
 	AvailabilityData availabilityData;
 	ScheduleData scheduleData;
-	ScheduleScoreData scheduleScoreData;
-	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore)>> funcs;
+	std::vector<ScheduleScoreData>* vctScheduleScoreData;
+	std::vector<std::function<size_t(std::vector<std::pair<size_t, size_t>> scheduleToScore, size_t iPopulationMember)>> funcs;
 	void PopulateScoreFunctions();
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring>& mapToLookIn);
 	std::mutex mtxScheduleSpecific;

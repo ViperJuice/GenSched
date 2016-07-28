@@ -17,7 +17,7 @@ public:
 	virtual ScheduleData BuildSchedule(AvailabilityData &availabilityData, size_t iNumberOfSchedulesToBuild);
 	virtual void ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback)=0;// TODO is this abstract enought for non-evolutionary build method? May need to move to child class
 	virtual void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback)=0;// TODO is this abstract enought for non-evolutionary build method? May need to move to child class
-	virtual void ConnectScheduleScoreDataProcessUpdate(std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback)=0;
+	virtual void ConnectScheduleScoreDataProcessUpdate(std::function<void(std::vector<ScheduleScoreData>)> scheduleScoreDataUpdateCallback)=0;
 	void SetStopTheEngine(const bool stopTheEngine);
 private:
 	

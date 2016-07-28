@@ -9,7 +9,7 @@ public:
 	EvolutionSchedulingEngine(size_t iPopulationSize, size_t iNumberOfGenerationsToRun);
 	void ConnectScheduleUpdateCallback(std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback);
 	void ConnectSchedulingProcessUpdateCallback(std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback);
-	void ConnectScheduleScoreDataProcessUpdate(std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback);
+	void ConnectScheduleScoreDataProcessUpdate(std::function<void(std::vector<ScheduleScoreData>)> scheduleScoreDataUpdateCallback);
 
 private:
 	random_device rd;
@@ -24,8 +24,9 @@ private:
 	void CheckValidNamePair(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
-	std::function<void(ScheduleScoreData)> scheduleScoreDataUpdateCallback;
-	ScheduleScoreData scheduleScoreData;
+	std::function<void(std::vector<ScheduleScoreData>)> scheduleScoreDataUpdateCallback;
+	ScheduleScorer* scheduleScorer;
+	std::vector<ScheduleScoreData> vctScheduleScoreData;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
 	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation;
 	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctSchedulesToReturn;
