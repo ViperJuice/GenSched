@@ -40,8 +40,11 @@ private:
 	const size_t iSuperKey;
 	const size_t iDSGKey;
 
-	const size_t iDesiredNumberOfDaysScoreKey;
-	const size_t iPreferedNumberOfDaysInRowScoreKey;
+	const size_t iLessThanDesiredNumberOfDaysScoreKey;
+	const size_t iGreaterThanDesiredNumberOfDaysScoreKey;
+	const size_t iDSGGreaterThanDesiredNumberOfDaysScoreKey;
+	const size_t iLessThanPreferedNumberOfDaysInRowScoreKey;
+	const size_t iGreaterThanPreferedNumberOfDaysInRowScoreKey;
 	const size_t iMaxNumberOfDaysScoreKey;
 	const size_t iOnOffOnScoreKey;
 	const size_t iAlertBeforeGreyDayScoreKey;
@@ -61,12 +64,15 @@ private:
 
 	const int iMAXDAYS_Penalty = -1000; //TODO make iMAXDAYSPenalty selectable
 	const int iDinnerAndMovieNotRequested_Penalty = -200; //TODO make iDinnerAndMovieNotRequested selectable
-	const int iDesNumOfAlertDays_Score;
-	const int iPrefNumOfAlertDaysInRow_Score;
+	const int iLessThanDesNumOfAlertDays_Score;
+	const int iGreaterThanDesNumOfAlertDays_Score;
+	const int iDSGGreaterThanDesNumOfAlertDays_Score;
+	const int iGreaterThanPrefNumOfAlertDaysInRow_Score;
+	const int iLessThanPrefNumOfAlertDaysInRow_Score;
 	const int iMaxNumOfAlertDays_Score;
 	const int iOnOffOn_Score;
 	const int iAlertBeforeGreyDay_Score;
-	const int iAlertOnGreyDay_Score=0;//TODO Implement this
+	const int iAlertOnGreyDay_Score=0;
 	const int iDinnerAndMovie1stHalf_Score;
 	const int i2SOFs_Score;
 	const int i2Supers_Score;

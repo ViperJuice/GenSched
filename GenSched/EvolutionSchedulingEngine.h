@@ -18,10 +18,13 @@ private:
 	void scoreSchedulePopulation(AvailabilityData &availabilityData, ScheduleData & scheduleData, std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> &vctScoreAndSchedulePopulation, size_t iScoredPopulationSize, bool bFinalSchedules);
 	void FindPossibleNamePairs(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild);
 	void SortPopulationByScore();
+	void EliminateClones(AvailabilityData &availabilityData, ScheduleData &scheduleData);
 	void SpawnNewPopulation();
 	void PassSchedulingProcessUpdate(AvailabilityData &availabilityData, size_t iGenerationNumber, bool bFinalPopulation);
 	void Mutate(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
 	void CheckValidNamePair(std::pair<size_t, std::vector<std::pair<size_t, size_t>>> &pairPairVctNewScoreAndOffspring);
+	std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> GenerateReadableSchedule(const AvailabilityData &availabilityData);
+	wstring GenerateCSVOutputString(std::pair<int, std::vector<std::pair<wstring, wstring>>> &pairScheduleToReturn, ScheduleScoreData &scheduleScoreData, const AvailabilityData &availabilityData, size_t iScheduleNumber);
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
 	std::function<void(std::vector<ScheduleScoreData>)> scheduleScoreDataUpdateCallback;
@@ -35,6 +38,7 @@ private:
 	size_t iNumberOfGenerationsToRun = 1000;//number of generations to run
 	size_t iNumberOfSchedulesToBuild = 10;//number of schedule options to build
 	double iMutationRate = 3;//mutaion rate integer percentage
+	double iCloneEliminationMutationRate = 10;//muation rate used to elminate clone if a clone is found
 	double iLikelyhoodOfCrossover = 5;//likelhood of crossover at any gene as a percentage
 	double iLikelyhoodOfChopping = 5;//likelhood of chopping at any gene as a percentage
 	double iGuaranteedClonePercentage=10;//top percent of population that is cloned with no mutation

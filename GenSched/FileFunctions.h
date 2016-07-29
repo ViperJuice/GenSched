@@ -20,6 +20,8 @@ class FileFunctions {
 		T** vectorParser2D(std::vector<std::vector<T>> vectorToParse, unsigned __int32 firstColumn,
 			unsigned __int32 lastColumn, unsigned __int32 firstRow, unsigned __int32 lastRow);
 		bool wildcmp(const wchar_t* wild, const wchar_t* string);
+		int WriteCVSFile(wstring wstrStringToWrite, wstring wstrFileName);
+
 	private:
 		string sPath;
 		string sFileName;

@@ -10,8 +10,11 @@ ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData 
 	iAlertBeforeGreyDayPrefKey(FindMapKeyFromValue(L"Alert Before Grey Day", availabilityData.mapNumberPrefType)),
 	iAlertOnGreyDayPrefKey(FindMapKeyFromValue(L"Alert On Grey Day", availabilityData.mapNumberPrefType)),
 	iDinnerAndMovie1stHalfPrefKey(FindMapKeyFromValue(L"D&M", availabilityData.mapNumberPrefType)),
-	iDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"Des#_Score", availabilityData.mapNumberScorableType)),
-	iPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"Pref#_Score", availabilityData.mapNumberScorableType)),
+	iGreaterThanDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L">Des#_Score", availabilityData.mapNumberScorableType)),
+	iLessThanDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"<Des#_Score", availabilityData.mapNumberScorableType)),
+	iDSGGreaterThanDesiredNumberOfDaysScoreKey(FindMapKeyFromValue(L"DSG>Des#_Score", availabilityData.mapNumberScorableType)),
+	iGreaterThanPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L">Pref#_Score", availabilityData.mapNumberScorableType)),
+	iLessThanPreferedNumberOfDaysInRowScoreKey(FindMapKeyFromValue(L"<Pref#_Score", availabilityData.mapNumberScorableType)),
 	iMaxNumberOfDaysScoreKey(FindMapKeyFromValue(L"Max#_Score", availabilityData.mapNumberScorableType)),
 	iOnOffOnScoreKey(FindMapKeyFromValue(L"O-O-O_Score", availabilityData.mapNumberScorableType)),
 	iAlertBeforeGreyDayScoreKey(FindMapKeyFromValue(L"Alert Before Grey Day_Score", availabilityData.mapNumberScorableType)),
@@ -33,8 +36,11 @@ ScheduleScorer::ScheduleScorer(AvailabilityData &availabilityData, ScheduleData 
 	iSuperKey(FindMapKeyFromValue(L"Super", availabilityData.mapNumberQualType)),
 	iDSGKey(FindMapKeyFromValue(L"DSG", availabilityData.mapNumberQualType)),
 
-	iDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iDesiredNumberOfDaysScoreKey)->second),
-	iPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iPreferedNumberOfDaysInRowScoreKey)->second),
+	iGreaterThanDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iGreaterThanDesiredNumberOfDaysScoreKey)->second),
+	iLessThanDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iLessThanDesiredNumberOfDaysScoreKey)->second),
+	iDSGGreaterThanDesNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iDSGGreaterThanDesiredNumberOfDaysScoreKey)->second),
+	iGreaterThanPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iGreaterThanPreferedNumberOfDaysInRowScoreKey)->second),
+	iLessThanPrefNumOfAlertDaysInRow_Score(availabilityData.mapScorableNumToScore.find(iLessThanPreferedNumberOfDaysInRowScoreKey)->second),
 	iMaxNumOfAlertDays_Score(availabilityData.mapScorableNumToScore.find(iMaxNumberOfDaysScoreKey)->second),
 	iOnOffOn_Score(availabilityData.mapScorableNumToScore.find(iOnOffOnScoreKey)->second),
 	iAlertBeforeGreyDay_Score(availabilityData.mapScorableNumToScore.find(iAlertBeforeGreyDayScoreKey)->second),
@@ -117,7 +123,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
 					pairDataToAdd.first.second = L"More alerts than desired by " + std::to_wstring(iDesiredDelta);
-					pairDataToAdd.second = iDesiredDelta*iDesNumOfAlertDays_Score;
+					pairDataToAdd.second = iDesiredDelta*iGreaterThanDesNumOfAlertDays_Score;
 					mtxNameSpecific.lock();
 					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
@@ -127,7 +133,7 @@ void ScheduleScorer::PopulateScoreFunctions()
 					std::pair<std::pair<size_t, std::wstring>, int> pairDataToAdd;
 					pairDataToAdd.first.first = i;
 					pairDataToAdd.first.second = L"Less alerts than desired by " + std::to_wstring(iDesiredDelta * -1);
-					pairDataToAdd.second = std::abs(iDesiredDelta)*iDesNumOfAlertDays_Score;
+					pairDataToAdd.second = std::abs(iDesiredDelta)*iLessThanDesNumOfAlertDays_Score;
 					mtxNameSpecific.lock();
 					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
@@ -154,7 +160,22 @@ void ScheduleScorer::PopulateScoreFunctions()
 					vctScheduleScoreData->at(iPopulationMember).vctNameSpecific.push_back(pairDataToAdd);
 					mtxNameSpecific.unlock();
 				}
-				iscore += std::abs(iDesiredDelta) * iDesNumOfAlertDays_Score + std::abs(iBucketDelta) * iDifferenceFromBucket_Score;
+				if (iDesiredDelta > 0)
+				{
+					iscore += iDesiredDelta * iGreaterThanDesNumOfAlertDays_Score;
+				}
+				else if (iDesiredDelta < 0)
+				{
+					iscore += -1 * iDesiredDelta * iGreaterThanDesNumOfAlertDays_Score;
+				}
+				if (iBucketDelta > 0)
+				{
+					iscore += iDesiredDelta * iGreaterThanDesNumOfAlertDays_Score;
+				}
+				else if (iBucketDelta < 0)
+				{
+					iscore += -1 * iDesiredDelta * iDifferenceFromBucket_Score;
+				}
 			}
 			delete iAlertCount;
 			delete iDaysAvailable;
@@ -217,30 +238,37 @@ void ScheduleScorer::PopulateScoreFunctions()
 						size_t iSubtraction = 1;
 						if (j== availabilityData.iNumberOfAvailabilityPeriods - 1 && bScheduledToday) { iSubtraction = 0; }
 						//Penalize for difference between desired and scheduled days in a row
-						iscore += std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
-							* iPrefNumOfAlertDaysInRow_Score;
-						if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] > 0)
+						if (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] > 0)
+						{
+							iscore += (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] )* iGreaterThanPrefNumOfAlertDaysInRow_Score;
+						}
+						else if (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] < 0)
+						{
+							iscore += -1* (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) * iLessThanPrefNumOfAlertDaysInRow_Score;
+						}
+
+						if (bFinalSchedules && (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) > 0)
 						{
 							std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
 							pairDataToAdd.first.first = j+iDinnerAndMovie - iSubtraction;
 							pairDataToAdd.first.second = i;
 							pairDataToAdd.second.first = L"Days in a row greater than desired by "
 								+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]);
-							pairDataToAdd.second.second = std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
-								* iPrefNumOfAlertDaysInRow_Score;
+							pairDataToAdd.second.second = (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) 
+								* iGreaterThanPrefNumOfAlertDaysInRow_Score;
 							mtxDateAndNameSpecific.lock();
 							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
 						}
-						else if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey] < 0)
+						else if (bFinalSchedules && (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]) < 0)
 						{
 							std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
 							pairDataToAdd.first.first = j + iDinnerAndMovie - iSubtraction;
 							pairDataToAdd.first.second = i;
 							pairDataToAdd.second.first = L"Days in a row less than desired by "
 								+ std::to_wstring(-1*(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey]));
-							pairDataToAdd.second.second = std::abs(iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey])
-								* iPrefNumOfAlertDaysInRow_Score;
+							pairDataToAdd.second.second = - 1* (iDaysInARow - availabilityData.ppIntPrefArray[i][iPreferedNumberOfDaysInRowKey])
+								* iLessThanPrefNumOfAlertDaysInRow_Score;
 							mtxDateAndNameSpecific.lock();
 							vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);
 							mtxDateAndNameSpecific.unlock();
@@ -248,14 +276,14 @@ void ScheduleScorer::PopulateScoreFunctions()
 						if (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey] > 0)//Penalize for exceeding max desired days in a row
 						{
 							iscore += (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]* iMaxNumOfAlertDays_Score);
-							if (bFinalSchedules && iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey] * iMaxNumOfAlertDays_Score != 0)
+							if (bFinalSchedules && (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]) * iMaxNumOfAlertDays_Score != 0)
 							{
 								std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>> pairDataToAdd;
 								pairDataToAdd.first.first = j + iDinnerAndMovie - iSubtraction;
 								pairDataToAdd.first.second = i;
 								pairDataToAdd.second.first = L"Days in a row greater than personal max by "
 									+ std::to_wstring(iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]);
-								pairDataToAdd.second.second = iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey]
+								pairDataToAdd.second.second = (iDaysInARow - availabilityData.ppIntPrefArray[i][iMaxNumberOfDaysKey])
 									* iMaxNumOfAlertDays_Score;
 								mtxDateAndNameSpecific.lock();
 								vctScheduleScoreData->at(iPopulationMember).vctDateAndNameSpecific.push_back(pairDataToAdd);

@@ -37,9 +37,20 @@ void EvolutionSchedulingEngine::ConnectScheduleScoreDataProcessUpdate(std::funct
 
 void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availabilityData, ScheduleData &scheduleData, size_t &iNumberOfSchedulesToBuild)
 {
+	//Adjust preference values for on-off-on
+	size_t iOnOffOnPrefKey = FindMapKeyFromValue(L"O-O-O", availabilityData.mapNumberPrefType);
+	for (size_t i = 0;i<availabilityData.iNumberOfAvailabilityDataRows;i++)
+	{
+		if (availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey] > 0)
+		{
+			(availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey])--;
+		}
+	}
+	
 	size_t iGenerationNumber = 0;
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
+	EliminateClones(availabilityData, scheduleData);
 	scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation, iPopulationSize, false);
 	SortPopulationByScore();
 	PassSchedulingProcessUpdate(availabilityData, 0, false);//Pass info back to main process
@@ -47,127 +58,20 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 	for (iGenNumber = 1;iGenNumber < iNumberOfGenerationsToRun && !bStopTheEngine;iGenNumber++)
 	{
 		SpawnNewPopulation();
+		EliminateClones(availabilityData, scheduleData);
 		scoreSchedulePopulation(availabilityData, scheduleData, vctScoreAndSchedulePopulation, iPopulationSize, false);
 		SortPopulationByScore();
 		PassSchedulingProcessUpdate(availabilityData, iGenNumber, false);//Pass info back to main process
 	}
 	PassSchedulingProcessUpdate(availabilityData, iGenNumber, true);//Pass info back to main process
-	//TODO Move this to FileFunctions
-	std:vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
-	vctSchedulesToReturn.reserve(iNumberOfSchedulesToBuild);
-	std::pair<wstring, wstring> pairGeneToAdd;
-	std::pair<int, std::vector<pair<wstring, wstring>>> pairScoreAndGeneToAdd;
-	pairScoreAndGeneToAdd.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
-	int iNumberOfSchedulesToBuildUnsigned = iNumberOfSchedulesToBuild;
-	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+	std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
+	vctSchedulesToReturn = GenerateReadableSchedule(availabilityData);
+	FileFunctions fileFunctions;
+	for (size_t i = 0;i < vctSchedulesToReturn.size();i++)
 	{
-		pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
-		pairScoreAndGeneToAdd.second.clear();
-		for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
-		{
-			pairGeneToAdd.first = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].first)->second;
-			pairGeneToAdd.second = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].second)->second;
-			pairScoreAndGeneToAdd.second.push_back(pairGeneToAdd);
-		}
-		vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
-	}
-
-	for (size_t j=0;j < vctSchedulesToReturn.size();j++)
-	{
-		auto platformPath = Windows::Storage::ApplicationData::Current->RoamingFolder->Path;
-		std::wstring wstrplatformPath = platformPath->Data();
-		std::wstring wstrPlatformPathAndFilename = wstrplatformPath + L"\\" + availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(j) + L"_" + L"AlertScheduleOut.csv";
-		std::string convertedPlatformPathandFilename(wstrPlatformPathAndFilename.begin(), wstrPlatformPathAndFilename.end());
-		std::wofstream outFile(convertedPlatformPathandFilename, std::ofstream::out | std::ofstream::trunc);
-		std::vector<std::pair<wstring, wstring>>::iterator pairItr;
-		std::wstring strScheduleOutputString = L"";
-		size_t iDinnerAndMovieCounter=0;
-		strScheduleOutputString += L"Juice Torrence's Genetic Alert Scheduling Builder Output File Version 0.0"s + L"\n"
-			+ availabilityData.month +L"," + std::to_wstring(availabilityData.year) + L"\n";
-		for (size_t j = 0;j < scheduleData.iNumberOfAvailabilityPeriods;j++) 
-		{
-			strScheduleOutputString += std::to_wstring(j + 1);
-			if (j != scheduleData.iNumberOfAvailabilityPeriods-1 || scheduleData.iNumberOfSubPeriods[j] == 2)
-			{
-				strScheduleOutputString += L",";
-			}
-			if (scheduleData.iNumberOfSubPeriods[j] == 2)
-			{
-				iDinnerAndMovieCounter++;
-				strScheduleOutputString += L"D&M";
-				if (j != scheduleData.iNumberOfAvailabilityPeriods - 1)
-				{
-					strScheduleOutputString += L",";
-				}
-			}
-		}
-		strScheduleOutputString += L"\n";
-		for (pairItr = vctSchedulesToReturn[j].second.begin(); pairItr!=vctSchedulesToReturn[j].second.end(); pairItr++)
-		{
-			strScheduleOutputString += pairItr->first;
-			if ((pairItr + 1) != vctSchedulesToReturn[j].second.end())
-			{
-				strScheduleOutputString += L",";
-			}
-		}
-		strScheduleOutputString += L"\n";
-		for (pairItr = vctSchedulesToReturn[j].second.begin(); pairItr!=vctSchedulesToReturn[j].second.end(); pairItr++)
-		{
-			strScheduleOutputString += pairItr->second;
-			if ((pairItr + 1) != vctSchedulesToReturn[j].second.end())
-			{
-				strScheduleOutputString += L",";
-			}
-		}
-		strScheduleOutputString += L"\n";
-		std::vector<std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>>>::iterator itrDateAndName;
-		for (itrDateAndName = vctScheduleScoreData[j].vctDateAndNameSpecific.begin();itrDateAndName != vctScheduleScoreData[j].vctDateAndNameSpecific.end();itrDateAndName++)
-		{
-			for (int i=0;i<scheduleData.iTotalNumberOfSubPeriods;i++)
-			{
-				if (i != itrDateAndName->first.first)
-				{
-					strScheduleOutputString += L",";
-				}
-				else
-				{
-					strScheduleOutputString += std::to_wstring(itrDateAndName->second.second) + L",";
-				}
-			}
-			strScheduleOutputString += availabilityData.mapNumberName.find(itrDateAndName->first.second)->second 
-				+ L"," + itrDateAndName->second.first + L"\n";
-		}
-		std::vector<std::pair<std::size_t, std::pair<std::wstring, int>>>::iterator itrDate;
-		for (itrDate = vctScheduleScoreData[j].vctDateSpecific.begin();itrDate != vctScheduleScoreData[j].vctDateSpecific.end();itrDate++)
-		{
-			for (int i = 0;i<scheduleData.iTotalNumberOfSubPeriods;i++)
-			{
-				if (i != itrDate->first)
-				{
-					strScheduleOutputString += L",";
-				}
-				else
-				{
-					strScheduleOutputString += std::to_wstring(itrDate->second.second) + L",";
-				}
-			}
-			strScheduleOutputString += 
-				+ L",," + itrDate->second.first + L"\n";
-		}
-		std::vector<std::pair<std::pair<size_t, std::wstring>, int>>::iterator itrName;
-		for (itrName = vctScheduleScoreData[j].vctNameSpecific.begin();itrName != vctScheduleScoreData[j].vctNameSpecific.end();itrName++)
-		{
-			strScheduleOutputString += availabilityData.mapNumberName.find(itrName->first.first)->second + L"," + itrName->first.second 
-				+ L"," + std::to_wstring(itrName->second) + L"\n";
-		}
-		std::vector<std::pair<std::wstring, int>>::iterator itrCalendar;
-		for (itrCalendar = vctScheduleScoreData[j].vctScheduleSpecific.begin();itrCalendar != vctScheduleScoreData[j].vctScheduleSpecific.end();itrCalendar++)
-		{
-			strScheduleOutputString += itrCalendar->first+ L"," + std::to_wstring(itrCalendar->second) + L"\n";
-		}
-		outFile << strScheduleOutputString;
-		outFile.flush();
-		outFile.close();
+		wstring strScheduleOutputString = GenerateCSVOutputString(vctSchedulesToReturn.at(i), vctScheduleScoreData.at(i), availabilityData, i);
+		std::wstring wstrFileName = availabilityData.month + L"_" + std::to_wstring(availabilityData.year) + L"_" + std::to_wstring(i) + L"_" + L"AlertScheduleOut.csv";
+		fileFunctions.WriteCVSFile(strScheduleOutputString, wstrFileName);
 	}
 }
 
@@ -397,6 +301,30 @@ void EvolutionSchedulingEngine::SortPopulationByScore()
 	{
 		return firstElem.first > secondElem.first;
 	});
+}
+//Function to eliminate clones via mutation
+void EvolutionSchedulingEngine::EliminateClones(AvailabilityData & availabilityData, ScheduleData &scheduleData)
+{
+	mt19937 gen(rd());
+	uniform_int_distribution<> dist1(0, 1);
+	for (size_t i = 0;i < iNumberOfGenerationsToRun;i++)
+	{
+		for (size_t j = i+1; j < iNumberOfGenerationsToRun; j++)
+		{
+			//mutate clone if clone is found
+			if (vctScoreAndSchedulePopulation[i].second == vctScoreAndSchedulePopulation[j].second)
+			{
+				for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
+				{
+					if (dist1(gen) < iCloneEliminationMutationRate / 100)
+					{
+						uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[k].size() - 1);
+						vctScoreAndSchedulePopulation[j].second[k] = scheduleData.vctVctPairIntPossibleNameCombinations[k][dist(gen)];
+					}
+				}
+			}
+		}
+	}
 }
 void EvolutionSchedulingEngine::SpawnNewPopulation()
 {
@@ -743,6 +671,120 @@ void EvolutionSchedulingEngine::CheckValidNamePair(std::pair<size_t, std::vector
 			pairPairVctNewScoreAndOffspring.second[j] = scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)];
 		}
 	}
+}
+
+std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> EvolutionSchedulingEngine::GenerateReadableSchedule(const AvailabilityData &availabilityData)
+{
+	std:vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> vctSchedulesToReturn;
+	vctSchedulesToReturn.reserve(iNumberOfSchedulesToBuild);
+	std::pair<wstring, wstring> pairGeneToAdd;
+	std::pair<int, std::vector<pair<wstring, wstring>>> pairScoreAndGeneToAdd;
+	pairScoreAndGeneToAdd.second.reserve(scheduleData.iTotalNumberOfSubPeriods);
+	int iNumberOfSchedulesToBuildUnsigned = iNumberOfSchedulesToBuild;
+	for (size_t j = 0;j < iNumberOfSchedulesToBuild;j++)
+	{
+		pairScoreAndGeneToAdd.first = vctScoreAndSchedulePopulation[j].first;
+		pairScoreAndGeneToAdd.second.clear();
+		for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
+		{
+			pairGeneToAdd.first = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].first)->second;
+			pairGeneToAdd.second = availabilityData.mapNumberName.find(vctScoreAndSchedulePopulation[j].second[k].second)->second;
+			pairScoreAndGeneToAdd.second.push_back(pairGeneToAdd);
+		}
+		vctSchedulesToReturn.push_back(pairScoreAndGeneToAdd);
+	}
+	return vctSchedulesToReturn;
+}
+
+wstring EvolutionSchedulingEngine::GenerateCSVOutputString(std::pair<int, std::vector<std::pair<wstring, wstring>>> &pairScheduleToReturn, ScheduleScoreData &scheduleScoreData, const AvailabilityData &availabilityData, size_t iScheduleNumber)
+{
+	std::vector<std::pair<wstring, wstring>>::iterator pairItr;
+	std::wstring strScheduleOutputString = L"";
+	size_t iDinnerAndMovieCounter = 0;
+	strScheduleOutputString += L"Juice Torrence's Genetic Alert Scheduling Builder Output File Version 0.0"s + L"\n"
+		+ availabilityData.month + L"," + std::to_wstring(availabilityData.year) + L"\n";
+	for (size_t j = 0;j < scheduleData.iNumberOfAvailabilityPeriods;j++)
+	{
+		strScheduleOutputString += std::to_wstring(j + 1);
+		if (j != scheduleData.iNumberOfAvailabilityPeriods - 1 || scheduleData.iNumberOfSubPeriods[j] == 2)
+		{
+			strScheduleOutputString += L",";
+		}
+		if (scheduleData.iNumberOfSubPeriods[j] == 2)
+		{
+			iDinnerAndMovieCounter++;
+			strScheduleOutputString += L"D&M";
+			if (j != scheduleData.iNumberOfAvailabilityPeriods - 1)
+			{
+				strScheduleOutputString += L",";
+			}
+		}
+	}
+	strScheduleOutputString += L"\n";
+	for (pairItr = pairScheduleToReturn.second.begin(); pairItr != pairScheduleToReturn.second.end(); pairItr++)
+	{
+		strScheduleOutputString += pairItr->first;
+		if ((pairItr + 1) != pairScheduleToReturn.second.end())
+		{
+			strScheduleOutputString += L",";
+		}
+	}
+	strScheduleOutputString += L"\n";
+	for (pairItr = pairScheduleToReturn.second.begin(); pairItr != pairScheduleToReturn.second.end(); pairItr++)
+	{
+		strScheduleOutputString += pairItr->second;
+		if ((pairItr + 1) != pairScheduleToReturn.second.end())
+		{
+			strScheduleOutputString += L",";
+		}
+	}
+	strScheduleOutputString += L"\n";
+	std::vector<std::pair<std::pair<size_t, size_t>, std::pair<std::wstring, int>>>::iterator itrDateAndName;
+	for (itrDateAndName = scheduleScoreData.vctDateAndNameSpecific.begin();itrDateAndName != scheduleScoreData.vctDateAndNameSpecific.end();itrDateAndName++)
+	{
+		for (int i = 0;i<scheduleData.iTotalNumberOfSubPeriods;i++)
+		{
+			if (i != itrDateAndName->first.first)
+			{
+				strScheduleOutputString += L",";
+			}
+			else
+			{
+				strScheduleOutputString += std::to_wstring(itrDateAndName->second.second) + L",";
+			}
+		}
+		strScheduleOutputString += availabilityData.mapNumberName.find(itrDateAndName->first.second)->second
+			+ L"," + itrDateAndName->second.first + L"\n";
+	}
+	std::vector<std::pair<std::size_t, std::pair<std::wstring, int>>>::iterator itrDate;
+	for (itrDate = scheduleScoreData.vctDateSpecific.begin();itrDate != scheduleScoreData.vctDateSpecific.end();itrDate++)
+	{
+		for (int i = 0;i<scheduleData.iTotalNumberOfSubPeriods;i++)
+		{
+			if (i != itrDate->first)
+			{
+				strScheduleOutputString += L",";
+			}
+			else
+			{
+				strScheduleOutputString += std::to_wstring(itrDate->second.second) + L",";
+			}
+		}
+		strScheduleOutputString +=
+			+L",," + itrDate->second.first + L"\n";
+	}
+	std::vector<std::pair<std::pair<size_t, std::wstring>, int>>::iterator itrName;
+	for (itrName = scheduleScoreData.vctNameSpecific.begin();itrName != scheduleScoreData.vctNameSpecific.end();itrName++)
+	{
+		strScheduleOutputString += availabilityData.mapNumberName.find(itrName->first.first)->second + L"," + itrName->first.second
+			+ L"," + std::to_wstring(itrName->second) + L"\n";
+	}
+	std::vector<std::pair<std::wstring, int>>::iterator itrCalendar;
+	for (itrCalendar = scheduleScoreData.vctScheduleSpecific.begin();itrCalendar != scheduleScoreData.vctScheduleSpecific.end();itrCalendar++)
+	{
+		strScheduleOutputString += itrCalendar->first + L"," + std::to_wstring(itrCalendar->second) + L"\n";
+	}
+	return strScheduleOutputString;
 }
 
 size_t EvolutionSchedulingEngine::FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn)

@@ -535,3 +535,16 @@ bool FileFunctions::wildcmp(const wchar_t *wild, const wchar_t *string)
 	}
 	return !*wild;
 }
+
+int FileFunctions::WriteCVSFile(wstring wstrStringToWrite, wstring wstrFileName)
+{
+	auto platformPath = Windows::Storage::ApplicationData::Current->RoamingFolder->Path;
+	std::wstring wstrplatformPath = platformPath->Data();
+	std::wstring wstrPlatformPathAndFilename = wstrplatformPath + L"\\" + wstrFileName;
+	//std::string convertedPlatformPathandFilename(wstrPlatformPathAndFilename.begin(), wstrPlatformPathAndFilename.end());
+	std::wofstream outFile(wstrPlatformPathAndFilename, std::wofstream::out | std::wofstream::trunc);
+	outFile << wstrStringToWrite;
+	outFile.flush();
+	outFile.close();
+	return 0;
+}
