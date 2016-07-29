@@ -41,14 +41,16 @@ private:
 	double iCloneEliminationMutationRate = 10;//muation rate used to elminate clone if a clone is found
 	double iLikelyhoodOfCrossover = 5;//likelhood of crossover at any gene as a percentage
 	double iLikelyhoodOfChopping = 5;//likelhood of chopping at any gene as a percentage
-	double iGuaranteedClonePercentage=10;//top percent of population that is cloned with no mutation
-	double iClonedPercentage = 10;//percent of population that is cloned by tringular distribution selection with no mutation
-	double iMateGuaranteed = 10;//top percent of population that is guarenteed to breed
-	double iRandomPercentage = 10;//number of new populations that are randomly generated
-	double iClonedWithMutationPercentage = 10;//number of population cloned with mutation
-	double iSexualWithoutCrossoverPercentage = 10;//number of population that will sexually reproduce without crossover
-	double iSexualWithChoppingPercentage = 10;//number of population that sexually reproduce by chopping
+	size_t iGuaranteedClonePercentage=10;//top percent of population that is cloned with no mutation
+	size_t iClonedPercentage = 10;//percent of population that is cloned by tringular distribution selection with no mutation
+	size_t iMateGuaranteed = 10;//top percent of population that is guarenteed to breed
+	size_t iRandomPercentage = 10;//number of new populations that are randomly generated
+	size_t iClonedWithMutationPercentage = 10;//number of population cloned with mutation
+	size_t iSexualWithoutCrossoverPercentage = 10;//number of population that will sexually reproduce without crossover
+	size_t iSexualWithChoppingPercentage = 10;//number of population that sexually reproduce by chopping
 	int* iScores = nullptr; //holds schedule scores
+	std::pair<int, std::vector<std::pair<size_t, size_t>>>*  arrayNewScheduleAndScorePopulation;
+	std::mutex mx;
 };
 
 

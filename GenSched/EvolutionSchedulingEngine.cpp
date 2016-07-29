@@ -7,6 +7,7 @@ using namespace concurrency;
 EvolutionSchedulingEngine::~EvolutionSchedulingEngine()
 {
 	delete scheduleScorer;
+	delete arrayNewScheduleAndScorePopulation;
 }
 
 EvolutionSchedulingEngine::EvolutionSchedulingEngine()
@@ -46,7 +47,6 @@ void EvolutionSchedulingEngine::FillScheduleShell(AvailabilityData &availability
 			(availabilityData.ppIntPrefArray[i][iOnOffOnPrefKey])--;
 		}
 	}
-	
 	size_t iGenerationNumber = 0;
 	FindPossibleNamePairs(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 	BuildInitialPopulation(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
@@ -307,79 +307,106 @@ void EvolutionSchedulingEngine::EliminateClones(AvailabilityData & availabilityD
 {
 	mt19937 gen(rd());
 	uniform_int_distribution<> dist1(0, 1);
-	for (size_t i = 0;i < iNumberOfGenerationsToRun;i++)
+	std::unique_ptr<std::future<void>[]> noCloneFutures(new future<void>[iNumberOfGenerationsToRun]);
+	for (size_t i = 0;i < iNumberOfGenerationsToRun;i++) 
 	{
-		for (size_t j = i+1; j < iNumberOfGenerationsToRun; j++)
+		noCloneFutures[i] = std::async(std::launch::async, [&](size_t i)
 		{
-			//mutate clone if clone is found
-			if (vctScoreAndSchedulePopulation[i].second == vctScoreAndSchedulePopulation[j].second)
+			for (size_t j = i + 1; j < iNumberOfGenerationsToRun; j++)
 			{
-				for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
+				//mutate clone if clone is found
+				if (vctScoreAndSchedulePopulation[i].second == vctScoreAndSchedulePopulation[j].second)
 				{
-					if (dist1(gen) < iCloneEliminationMutationRate / 100)
+					for (size_t k = 0; k < scheduleData.iTotalNumberOfSubPeriods;k++)
 					{
-						uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[k].size() - 1);
-						vctScoreAndSchedulePopulation[j].second[k] = scheduleData.vctVctPairIntPossibleNameCombinations[k][dist(gen)];
+						if (dist1(gen) < iCloneEliminationMutationRate / 100)
+						{
+							uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[k].size() - 1);
+							mx.lock();
+							vctScoreAndSchedulePopulation[j].second[k] = scheduleData.vctVctPairIntPossibleNameCombinations[k][dist(gen)];
+							mx.unlock();
+						}
 					}
 				}
 			}
-		}
+		},i);
+	}
+	for (size_t i = 0;i < iNumberOfGenerationsToRun;i++) 
+	{
+		noCloneFutures[i].get();
 	}
 }
 void EvolutionSchedulingEngine::SpawnNewPopulation()
 {
-	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctNewScheduleAndScorePopulation;
-	vctNewScheduleAndScorePopulation.reserve(iPopulationSize);
+	
+	arrayNewScheduleAndScorePopulation = new std::pair<int, std::vector<std::pair<size_t, size_t>>>[iPopulationSize];
+	size_t iRemainder=0;//holds remainders if integer division
 	size_t iNewPopulation = 0;//tracks how many new offspring have been created
 	//clone top percentage of population into next generation
 	size_t newPopulationSize = iNewPopulation;
-	for (size_t i = newPopulationSize;i<newPopulationSize +(iPopulationSize*iGuaranteedClonePercentage/100);i++)
+	std::unique_ptr<std::future<void>[]> spawnFutures(new future<void>[iPopulationSize]);
+	for (size_t i = newPopulationSize;i<iPopulationSize*iGuaranteedClonePercentage/100;i++)
 	{
-		vctNewScheduleAndScorePopulation.push_back(vctScoreAndSchedulePopulation[i]);//copy old population to new
-		vctNewScheduleAndScorePopulation[i].first = 0;//initialize score
-		iNewPopulation++;//increment the population size
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i)
+		{
+			arrayNewScheduleAndScorePopulation[i] = vctScoreAndSchedulePopulation[i];//copy old population to new
+			arrayNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		},i);
+		iNewPopulation++;
 	}
 	//generate random members of new population
 	mt19937 gen(rd());
 	newPopulationSize = iNewPopulation;
 	for (size_t i = newPopulationSize;i< newPopulationSize+(iPopulationSize*iRandomPercentage/100);i++)
 	{
-		std::pair<size_t,std::vector<std::pair<size_t, size_t>>> vctTmp;//vector to hold new schedule temporarily
-		vctTmp.first = 0;//initialize score
-		vctTmp.second.reserve(scheduleData.iTotalNumberOfSubPeriods);//reserve space for schedule in temp vector
-		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i) 
 		{
-			uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[j].size() - 1);
-			vctTmp.second.push_back(scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)]);//insert random genes into new schedules
-		}
-		vctNewScheduleAndScorePopulation.push_back(vctTmp);
+			std::pair<size_t, std::vector<std::pair<size_t, size_t>>> vctTmp;//vector to hold new schedule temporarily
+			vctTmp.first = 0;//initialize score
+			vctTmp.second.reserve(scheduleData.iTotalNumberOfSubPeriods);//reserve space for schedule in temp vector
+			for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+			{
+				uniform_int_distribution<> dist(0, scheduleData.vctVctPairIntPossibleNameCombinations[j].size() - 1);
+				vctTmp.second.push_back(scheduleData.vctVctPairIntPossibleNameCombinations[j][dist(gen)]);//insert random genes into new schedules
+			}
+			arrayNewScheduleAndScorePopulation[i] = vctScoreAndSchedulePopulation[i];//copy old population to new
+			arrayNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		}, i);
 		iNewPopulation++;//increment new population size
 	}
 	//generate new population by cloning
 	uniform_real_distribution<> dist1(0, 1);
 	newPopulationSize = iNewPopulation;
+	size_t iNumberOfCloness = iPopulationSize*iClonedPercentage / 100;
 	for (size_t i = newPopulationSize;i<newPopulationSize + (iPopulationSize*iClonedPercentage / 100);i++)
 	{
-		//converts uniform distribution to triangular distribution a=0 c=0 b=iPopulationSize
-		size_t  iIndexToClone =  (iPopulationSize-1)*(1 - (sqrt(1 - dist1(gen))));
-		vctNewScheduleAndScorePopulation.push_back(vctScoreAndSchedulePopulation[iIndexToClone]);//copy old to new population
-		vctNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i) 
+		{
+			//converts uniform distribution to triangular distribution a=0 c=0 b=iPopulationSize
+			size_t  iIndexToClone = (iPopulationSize - 1)*(1 - (sqrt(1 - dist1(gen))));
+			arrayNewScheduleAndScorePopulation[i] = vctScoreAndSchedulePopulation[iIndexToClone];//copy old population to new
+			arrayNewScheduleAndScorePopulation[i].first = 0;//initialize score
+		}, i);
 		iNewPopulation++;//increment new population size
 	}
 	//generate new population by cloning with mutation
 	newPopulationSize = iNewPopulation;
 	for (size_t i = newPopulationSize;i< newPopulationSize + (iPopulationSize * iClonedWithMutationPercentage/100);i++)
 	{
-		//converts uniform distribution to triangular distribution a=0 c=0 b=iPopulationSize
-		size_t  iIndexToClone = (iPopulationSize - 1)*(1 - (sqrt(1 - dist1(gen))));
-		std::pair<size_t, std::vector<std::pair<size_t, size_t>>> vctTmp;
-		vctTmp = vctScoreAndSchedulePopulation[iIndexToClone];
-		Mutate(vctTmp);//insert mutations
-		vctTmp.first = 0;//initialize score
-		vctNewScheduleAndScorePopulation.push_back(vctTmp);
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i)
+		{
+			//converts uniform distribution to triangular distribution a=0 c=0 b=iPopulationSize
+			size_t  iIndexToClone = (iPopulationSize - 1)*(1 - (sqrt(1 - dist1(gen))));
+			std::pair<size_t, std::vector<std::pair<size_t, size_t>>> vctTmp;
+			vctTmp = vctScoreAndSchedulePopulation[iIndexToClone];
+			Mutate(vctTmp);//insert mutations
+			vctTmp.first = 0;//initialize score
+			arrayNewScheduleAndScorePopulation[i] = vctTmp;
+		}, i);
 		iNewPopulation++;//increment new population size
 	}
 	//Build Breeding Population
+
 	std::vector<std::vector<std::pair<size_t, size_t>>>  vctVctPairBreeders(2*(iPopulationSize - iNewPopulation));
 	size_t iBreedingPopulationSize=0;//tracks breeding population size
 	for (size_t i = 0;i < (iMateGuaranteed / 100)*iPopulationSize;i++)
@@ -396,188 +423,218 @@ void EvolutionSchedulingEngine::SpawnNewPopulation()
 		vctVctPairBreeders[iBreedingPopulationSize] = vctScoreAndSchedulePopulation[iIndexToBreed].second;
 		iBreedingPopulationSize++;
 	}
+
 	//Sexual Reproduction Without Crossover
 	newPopulationSize = iNewPopulation;
 	for (size_t i = newPopulationSize;i < newPopulationSize  + (iPopulationSize*iSexualWithoutCrossoverPercentage / 100);i += 2)
 	{
-		uniform_int_distribution<> dist(0, vctVctPairBreeders.size()-1);
-		size_t iIndex1 = dist(gen);
-		size_t iIndex2 = dist(gen);
-		while (iIndex1 == iIndex2)//Ensure different indexes
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i)
 		{
-			iIndex2 = dist(gen);
-		}
-		std::pair<size_t ,std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
-		vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene1;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
-		vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene2;
-		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
-		{
-			pairGene1.first = vctVctPairBreeders[iIndex1][j].first;
-			pairGene1.second = vctVctPairBreeders[iIndex2][j].second;
-			vctPairOffspring1.push_back(pairGene1);
-			pairGene2.first = vctVctPairBreeders[iIndex1][j].second;
-			pairGene2.second = vctVctPairBreeders[iIndex2][j].first;
-			vctPairOffspring2.push_back(pairGene2);
-		}
-		pairPairVctNewScoreAndOffspring.first=0;
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
-		CheckValidNamePair(pairPairVctNewScoreAndOffspring);//make sure crossover and mutation end up with valid name pairs
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
-		iNewPopulation++;
-		
-		pairPairVctNewScoreAndOffspring.first = 0;
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
-		CheckValidNamePair(pairPairVctNewScoreAndOffspring);//make sure crossover and mutation end up with valid name pairs
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
-		iNewPopulation++;
-	
+			if (vctVctPairBreeders.size() > 1) {
+				mx.lock();
+				uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
+				size_t iIndex1 = dist(gen);
+				size_t iIndex2 = dist(gen);
 
-		//remove used breeders
-		if (iIndex1>iIndex2)
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-		}
-		else
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-		}
+				while (iIndex1 == iIndex2)//Ensure different indexes
+				{
+					iIndex2 = dist(gen);
+				}
+				std::vector<std::pair<size_t, size_t>> tmpBreeder1 = vctVctPairBreeders[iIndex1];
+				std::vector<std::pair<size_t, size_t>> tmpBreeder2 = vctVctPairBreeders[iIndex2];
+				//remove used breeders
+				if (iIndex1 > iIndex2)
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+				}
+				else
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+				}
+				mx.unlock();
+				std::pair<size_t, std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
+				vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene1;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
+				vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene2;
+				for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+				{
+					pairGene1.first = tmpBreeder1[j].first;
+					pairGene1.second = tmpBreeder2[j].second;
+					vctPairOffspring1.push_back(pairGene1);
+					pairGene2.first = tmpBreeder1[j].second;
+					pairGene2.second = tmpBreeder2[j].first;
+					vctPairOffspring2.push_back(pairGene2);
+				}
+				pairPairVctNewScoreAndOffspring.first = 0;
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
+				CheckValidNamePair(pairPairVctNewScoreAndOffspring);//make sure crossover and mutation end up with valid name pairs
+				arrayNewScheduleAndScorePopulation[i] = pairPairVctNewScoreAndOffspring;
+
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
+				CheckValidNamePair(pairPairVctNewScoreAndOffspring);//make sure crossover and mutation end up with valid name pairs
+				arrayNewScheduleAndScorePopulation[i+1] = pairPairVctNewScoreAndOffspring;
+			}
+		}, 1);
+		iNewPopulation++;
+		iNewPopulation++;
 	}
 	//Sexual Reproduction By Chopping
 	newPopulationSize = iNewPopulation;
 	for (size_t i = newPopulationSize;i < newPopulationSize + (iPopulationSize*iSexualWithChoppingPercentage / 100);i += 2)
 	{
-		uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
-		size_t iIndex1 = dist(gen);
-		size_t iIndex2 = dist(gen);
-		while (iIndex1 == iIndex2)//Ensure different indexes
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i)
 		{
-			iIndex2 = dist(gen);
-		}
-		std::pair<size_t, std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
-		vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene1;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
-		vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene2;
-		uniform_real_distribution<> dist1(0,1);
-		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
-		{
-			if (dist1(gen)>iLikelyhoodOfChopping/100) 
-			{
-				pairGene1.first = vctVctPairBreeders[iIndex1][j].first;
-				pairGene1.second = vctVctPairBreeders[iIndex1][j].second;
-				vctPairOffspring1.push_back(pairGene1);
-				pairGene2.first = vctVctPairBreeders[iIndex2][j].first;
-				pairGene2.second = vctVctPairBreeders[iIndex2][j].second;
-				vctPairOffspring2.push_back(pairGene2);
+			if (vctVctPairBreeders.size() > 1) {
+				mx.lock();
+				uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
+				size_t iIndex1 = dist(gen);
+				size_t iIndex2 = dist(gen);
+				while (iIndex1 == iIndex2)//Ensure different indexes
+				{
+					iIndex2 = dist(gen);
+				}
+				int a = vctVctPairBreeders[iIndex1].size();
+				int b = vctVctPairBreeders[iIndex2].size();
+				std::vector<std::pair<size_t, size_t>> tmpBreeder1 = vctVctPairBreeders[iIndex1];
+				std::vector<std::pair<size_t, size_t>> tmpBreeder2 = vctVctPairBreeders[iIndex2];
+				//remove used breeders
+				if (iIndex1 > iIndex2)
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+				}
+				else
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+				}
+				mx.unlock();
+				std::pair<size_t, std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
+				vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene1;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
+				vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene2;
+				uniform_real_distribution<> dist1(0, 1);
+				for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+				{
+					if (dist1(gen) > iLikelyhoodOfChopping / 100)
+					{
+						pairGene1.first = tmpBreeder1[j].first;
+						pairGene1.second = tmpBreeder1[j].second;
+						vctPairOffspring1.push_back(pairGene1);
+						pairGene2.first = tmpBreeder2[j].first;
+						pairGene2.second = tmpBreeder2[j].second;
+						vctPairOffspring2.push_back(pairGene2);
+					}
+					else
+					{
+						pairGene1.first = tmpBreeder2[j].first;
+						pairGene1.second = tmpBreeder2[j].second;
+						vctPairOffspring1.push_back(pairGene1);
+						pairGene2.first = tmpBreeder1[j].first;
+						pairGene2.second = tmpBreeder1[j].second;
+						vctPairOffspring2.push_back(pairGene2);
+					}
+				}
+				pairPairVctNewScoreAndOffspring.first = 0;
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutation
+				arrayNewScheduleAndScorePopulation[i] = pairPairVctNewScoreAndOffspring;
+
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutation
+				arrayNewScheduleAndScorePopulation[i+1] = pairPairVctNewScoreAndOffspring;
 			}
-			else
-			{
-				pairGene1.first = vctVctPairBreeders[iIndex2][j].first;
-				pairGene1.second = vctVctPairBreeders[iIndex2][j].second;
-				vctPairOffspring1.push_back(pairGene1);
-				pairGene2.first = vctVctPairBreeders[iIndex1][j].first;
-				pairGene2.second = vctVctPairBreeders[iIndex1][j].second;
-				vctPairOffspring2.push_back(pairGene2);
-			}
-		}
-		pairPairVctNewScoreAndOffspring.first = 0;
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutation
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
+		}, i);
 		iNewPopulation++;
-		
-		pairPairVctNewScoreAndOffspring.first = 0;
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutation
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
 		iNewPopulation++;
-		
-		//remove used breeders
-		if (iIndex1>iIndex2)
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-		}
-		else
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-		}
 	}
+
 	//Sexual Reproduction With Crossover
 	size_t iOffspringLeftToCreate = iPopulationSize - iNewPopulation;
 	newPopulationSize = iNewPopulation;
 	for (size_t i = newPopulationSize; i < newPopulationSize + iOffspringLeftToCreate;i += 2)
 	{
-		uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
-		size_t iIndex1 = dist(gen);
-		size_t iIndex2 = dist(gen);
-		while (iIndex1 == iIndex2)//Ensure different indexes
+		spawnFutures[i] = std::async(std::launch::async, [&](size_t i)
 		{
-			iIndex2 = dist(gen);
-		}
-		std::pair<size_t, std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
-		vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene1;
-		std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
-		vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
-		std::pair<size_t, size_t> pairGene2;
-		uniform_real_distribution<> dist1(0, 1);
-		for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
-		{
-			//Swap Indicies if crossover
-			size_t iTmp = 0;
-			if (dist1(gen) < iLikelyhoodOfCrossover / 100)
-			{
-				iTmp = iIndex1;
-				iIndex1 = iIndex2;
-				iIndex2 = iTmp;
+			if (vctVctPairBreeders.size() > 1) {
+				mx.lock();
+				uniform_int_distribution<> dist(0, vctVctPairBreeders.size() - 1);
+				size_t iIndex1 = dist(gen);
+				size_t iIndex2 = dist(gen);
+				while (iIndex1 == iIndex2)//Ensure different indexes
+				{
+					iIndex2 = dist(gen);
+				}
+				std::vector<std::pair<size_t, size_t>> tmpBreeder1 = vctVctPairBreeders[iIndex1];
+				std::vector<std::pair<size_t, size_t>> tmpBreeder2 = vctVctPairBreeders[iIndex2];
+				//remove used breeders
+
+				if (iIndex1 > iIndex2)
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+				}
+				else
+				{
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
+					vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
+				}
+
+				mx.unlock();
+				std::pair<size_t, std::vector<std::pair<size_t, size_t>>> pairPairVctNewScoreAndOffspring;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring1;
+				vctPairOffspring1.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene1;
+				std::vector<std::pair<size_t, size_t>> vctPairOffspring2;
+				vctPairOffspring2.reserve(scheduleData.iTotalNumberOfSubPeriods);
+				std::pair<size_t, size_t> pairGene2;
+				uniform_real_distribution<> dist1(0, 1);
+				for (size_t j = 0;j < scheduleData.iTotalNumberOfSubPeriods;j++)
+				{
+					//Swap Breeders if crossover
+					std::vector<std::pair<size_t, size_t>> vctTmp = tmpBreeder1;
+					if (dist1(gen) < iLikelyhoodOfCrossover / 100)
+					{
+						tmpBreeder1 = tmpBreeder2;
+						tmpBreeder2 = vctTmp;
+					}
+					pairGene1.first = tmpBreeder1[j].first;
+					pairGene1.second = tmpBreeder2[j].second;
+					vctPairOffspring1.push_back(pairGene1);
+					pairGene2.first = tmpBreeder2[j].first;
+					pairGene2.second = tmpBreeder1[j].second;
+					vctPairOffspring2.push_back(pairGene2);
+				}
+				//Offspring1
+				pairPairVctNewScoreAndOffspring.first = 0;//initialize score for new schedule
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;//add genome to new schedule
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
+				CheckValidNamePair(pairPairVctNewScoreAndOffspring);//check to ensure no invalid names due to crossover or mutation
+				arrayNewScheduleAndScorePopulation[i] = pairPairVctNewScoreAndOffspring;
+
+				//Offspring1
+				pairPairVctNewScoreAndOffspring.first = 0;//initialize score for new schedule
+				pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
+				Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
+				CheckValidNamePair(pairPairVctNewScoreAndOffspring);
+				arrayNewScheduleAndScorePopulation[i+1] = pairPairVctNewScoreAndOffspring;
 			}
-			pairGene1.first = vctVctPairBreeders[iIndex1][j].first;
-			pairGene1.second = vctVctPairBreeders[iIndex2][j].second;
-			vctPairOffspring1.push_back(pairGene1);
-			pairGene2.first = vctVctPairBreeders[iIndex2][j].first;
-			pairGene2.second = vctVctPairBreeders[iIndex1][j].second;
-			vctPairOffspring2.push_back(pairGene2);
-		}
-		//remove used breeders
-		if (iIndex1>iIndex2)
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-		}
-		else
-		{
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex2);
-			vctVctPairBreeders.erase(vctVctPairBreeders.begin() + iIndex1);
-		}
-		//Offspring1
-		pairPairVctNewScoreAndOffspring.first = 0;//initialize score for new schedule
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring1;//add genome to new schedule
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
-		CheckValidNamePair(pairPairVctNewScoreAndOffspring);//check to ensure no invalid names due to crossover or mutation
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
+		}, 1);
 		iNewPopulation++;
-		//Offspring1
-		pairPairVctNewScoreAndOffspring.first = 0;//initialize score for new schedule
-		pairPairVctNewScoreAndOffspring.second = vctPairOffspring2;
-		Mutate(pairPairVctNewScoreAndOffspring);//insert mutations
-		CheckValidNamePair(pairPairVctNewScoreAndOffspring);
-		vctNewScheduleAndScorePopulation.push_back(pairPairVctNewScoreAndOffspring);
 		iNewPopulation++;
 	}
-	vctScoreAndSchedulePopulation = vctNewScheduleAndScorePopulation;
+	for (size_t i = 0;i < iPopulationSize;i++) { spawnFutures.get(); }
+	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctNewScheduleAndScorePopulation (arrayNewScheduleAndScorePopulation, arrayNewScheduleAndScorePopulation + iPopulationSize);
 }
 void EvolutionSchedulingEngine::PassSchedulingProcessUpdate(AvailabilityData &availabilityData, size_t iGenerationNumber, bool bFinalPopulation)
 {
