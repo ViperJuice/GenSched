@@ -8,8 +8,10 @@ SchedulingEngine::~SchedulingEngine()
 
 ScheduleData SchedulingEngine::BuildSchedule(AvailabilityData &availabilityData, size_t iNumberOfSchedulesToBuild)
 {
-	
-	scheduleData.wstrSchedules = new pair<wstring, wstring>*[iNumberOfSchedulesToBuild];
+	if (scheduleData.wstrSchedules == nullptr)
+	{
+		scheduleData.wstrSchedules = new pair<wstring, wstring>*[iNumberOfSchedulesToBuild];
+	}
 	scheduleData = BuildScheduleShell(availabilityData);
 	FillScheduleShell(availabilityData, scheduleData, iNumberOfSchedulesToBuild);
 
@@ -25,7 +27,10 @@ ScheduleData SchedulingEngine::BuildScheduleShell(AvailabilityData &availability
 {
 	//Build array of correct size to hold schedule
 	scheduleData.iTotalNumberOfSubPeriods = availabilityData.iNumberOfAvailabilityPeriods;
-	scheduleData.iNumberOfSubPeriods = new size_t[availabilityData.iNumberOfAvailabilityPeriods];
+	if (scheduleData.iNumberOfSubPeriods == nullptr)
+	{
+		scheduleData.iNumberOfSubPeriods = new size_t[availabilityData.iNumberOfAvailabilityPeriods];
+	}
 	scheduleData.iNumberOfAvailabilityPeriods = availabilityData.iNumberOfAvailabilityPeriods;
 	for (size_t i = 0;i < availabilityData.iNumberOfAvailabilityPeriods;i++)
 	{

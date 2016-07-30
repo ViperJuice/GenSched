@@ -52,7 +52,10 @@ void MainSchedulingSingleton::ImportSchedulingData()
 		{
 			unique_ptr<DataReaderFactory> dataReaderFactory(new CsvDataReaderFactory());
 			unique_ptr<DataReader> dataReader(dataReaderFactory->create_dataReader());
-			availabilityData = new AvailabilityData();
+			if (availabilityData == nullptr)
+			{
+				availabilityData = new AvailabilityData();
+			}
 			*availabilityData = dataReader->read_data(stream);
 			return availabilityData;
 
@@ -74,8 +77,14 @@ void MainSchedulingSingleton::BuildSchedules()
 {
 	auto buildScheduleTask = create_task([&, this]() 
 	{
-		evoSchedulingProcessData = new EvoSchedulingProcessData();
-		schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
+		if (evoSchedulingProcessData == nullptr)
+		{
+			evoSchedulingProcessData = new EvoSchedulingProcessData();
+		}
+		if (schedulingEngineFactory==nullptr)
+		{
+			schedulingEngineFactory = new EvolutionSchedulingEngineFactory();
+		}
 		schedulingEngine = schedulingEngineFactory->create_schedulingEngine();
 		schedulingEngine->ConnectScheduleUpdateCallback([&](std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>> schedulesUpdateCallback)
 		{

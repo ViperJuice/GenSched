@@ -28,7 +28,7 @@ private:
 	std::function<void(std::vector<std::pair<int, std::vector<std::pair<wstring, wstring>>>>)> schedulesUpdateCallback;
 	std::function<void(std::pair<size_t, std::pair<int, int>>)> schedulingProcessUpdateCallback;
 	std::function<void(std::vector<ScheduleScoreData>)> scheduleScoreDataUpdateCallback;
-	ScheduleScorer* scheduleScorer;
+	ScheduleScorer* scheduleScorer = nullptr;
 	std::vector<ScheduleScoreData> vctScheduleScoreData;
 	size_t FindMapKeyFromValue(wstring wstrLookUp, std::map<size_t, wstring> &mapToLookIn);
 	std::vector<std::pair<int, std::vector<std::pair<size_t, size_t>>>> vctScoreAndSchedulePopulation;
@@ -42,15 +42,19 @@ private:
 	double iLikelyhoodOfCrossover = 5;//likelhood of crossover at any gene as a percentage
 	double iLikelyhoodOfChopping = 5;//likelhood of chopping at any gene as a percentage
 	size_t iGuaranteedClonePercentage=10;//top percent of population that is cloned with no mutation
-	size_t iClonedPercentage = 10;//percent of population that is cloned by tringular distribution selection with no mutation
 	size_t iMateGuaranteed = 10;//top percent of population that is guarenteed to breed
+	size_t iClonedPercentage = 10;//percent of population that is cloned by tringular distribution selection with no mutation
 	size_t iRandomPercentage = 10;//number of new populations that are randomly generated
 	size_t iClonedWithMutationPercentage = 10;//number of population cloned with mutation
 	size_t iSexualWithoutCrossoverPercentage = 10;//number of population that will sexually reproduce without crossover
 	size_t iSexualWithChoppingPercentage = 10;//number of population that sexually reproduce by chopping
 	int* iScores = nullptr; //holds schedule scores
-	std::pair<int, std::vector<std::pair<size_t, size_t>>>*  arrayNewScheduleAndScorePopulation;
+	std::pair<int, std::vector<std::pair<size_t, size_t>>>*  arrayNewScheduleAndScorePopulation = nullptr;
+
 	std::mutex mx;
+	std::mutex mx1;
+	std::vector<std::vector<std::pair<size_t, size_t>>>  vctVctPairBreeders;
+
 };
 
 

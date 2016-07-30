@@ -12,12 +12,12 @@ protected:
 private:
 	static MainSchedulingSingleton* _instance;
 	size_t iNumberOfSchedulesToBuild = 10;
-	SchedulingEngineFactory* schedulingEngineFactory;
-	SchedulingEngine* schedulingEngine;
-	pair<wstring, wstring>** wstrSchedules;
-	EvoSchedulingProcessData* evoSchedulingProcessData;
+	SchedulingEngineFactory* schedulingEngineFactory = nullptr;
+	SchedulingEngine* schedulingEngine = nullptr;
+	pair<wstring, wstring>** wstrSchedules = nullptr;
+	EvoSchedulingProcessData* evoSchedulingProcessData = nullptr;
 	ScheduleData scheduleData;
-	AvailabilityData* availabilityData;
+	AvailabilityData* availabilityData = nullptr;
 	Windows::Storage::Streams::DataReader^ reader;
 
 };
